@@ -27,6 +27,7 @@
 .DS_Store
 *.pem
 data/*.db
+test/test.db
 
 # debug
 npm-debug.log*
