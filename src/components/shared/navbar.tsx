@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NavbarAuth } from "@/components/navbar-auth";
+import { NavbarAuth } from "@/components/shared/navbar-auth";
 
 export function Navbar() {
   return (

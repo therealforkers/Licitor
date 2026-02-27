@@ -1,23 +1,21 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
-
-import { db } from "@/db/client";
-import { profiles, user } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db/client";
+import { profiles, user } from "@/lib/db/schema";
 import { updateProfileByUserId } from "@/server/actions/profile";
+import { createUserFixture } from "../fixtures/factories";
 
 describe("auth profile integration", () => {
   it("creates a profile automatically after email sign up", async () => {
     await db.delete(profiles);
     await db.delete(user);
 
-    const result = await auth.api.signUpEmail({
-      body: {
-        name: "Integration Tester",
-        email: "integration@test.com",
-        password: "Pa$$w0rd",
-        image: "https://randomuser.me/api/portraits/men/11.jpg",
-      },
+    const result = await createUserFixture({
+      name: "Integration Tester",
+      email: "integration@test.com",
+      password: "Pa$$w0rd",
+      image: "https://randomuser.me/api/portraits/men/11.jpg",
     });
 
     const createdProfile = await db.query.profiles.findFirst({

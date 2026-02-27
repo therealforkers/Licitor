@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { registerSchema, signInSchema } from "@/lib/validation/auth";
+import { registerSchema, signInSchema } from "@/lib/validators/auth";
 
 describe("auth validation schemas", () => {
   it("accepts valid sign-in input", () => {

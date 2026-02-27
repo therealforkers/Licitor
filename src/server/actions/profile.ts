@@ -2,14 +2,13 @@
 
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-
-import { db } from "@/db/client";
-import { profiles } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db/client";
+import { profiles } from "@/lib/db/schema";
 import {
   type ProfileUpdateInput,
   profileUpdateSchema,
-} from "@/lib/validation/profile";
+} from "@/lib/validators/profile";
 
 const toNullable = (value?: string) => {
   const trimmed = value?.trim();

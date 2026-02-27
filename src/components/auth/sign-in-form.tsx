@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { type SignInInput, signInSchema } from "@/lib/validation/auth";
+import { type SignInInput, signInSchema } from "@/lib/validators/auth";
 
 export function SignInForm() {
   const router = useRouter();

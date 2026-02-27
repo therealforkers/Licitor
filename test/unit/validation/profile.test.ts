@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { profileUpdateSchema } from "@/lib/validation/profile";
+import { profileUpdateSchema } from "@/lib/validators/profile";
 
 describe("profile validation schema", () => {
   it("accepts valid profile payload", () => {

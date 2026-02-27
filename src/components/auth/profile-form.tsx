@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Profile } from "@/db/schema";
 import { authClient } from "@/lib/auth-client";
+import type { Profile } from "@/lib/db/schema";
 import {
   type ProfileUpdateInput,
   profileUpdateSchema,
-} from "@/lib/validation/profile";
+} from "@/lib/validators/profile";
 import { updateProfileAction } from "@/server/actions/profile";
 
 type ProfileFormProps = {

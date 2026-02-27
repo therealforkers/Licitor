@@ -22,7 +22,7 @@ export default async function ProfilePage() {
   });
 
   if (!session?.user) {
-    redirect("/sign-in");
+    redirect("/login");
   }
 
   const profile = await getCurrentProfile(session.user.id);
@@ -41,9 +41,11 @@ export default async function ProfilePage() {
             <CardTitle className="text-xl">My Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <Avatar size="lg" className="size-20">
+            <Avatar className="mx-auto !h-auto !w-3/4 aspect-square rounded-2xl">
               <AvatarImage src={profile.image ?? undefined} alt={displayName} />
-              <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+              <AvatarFallback className="rounded-2xl text-xl">
+                {getInitials(displayName)}
+              </AvatarFallback>
             </Avatar>
 
             <div className="space-y-2">

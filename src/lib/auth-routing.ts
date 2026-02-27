@@ -1,4 +1,4 @@
-export const AUTH_GUEST_ONLY_ROUTES = ["/sign-in", "/register"] as const;
+export const AUTH_GUEST_ONLY_ROUTES = ["/login", "/register"] as const;
 export const AUTH_PROTECTED_ROUTES = ["/profile"] as const;
 
 export const getAuthRouteRedirect = (
@@ -10,7 +10,7 @@ export const getAuthRouteRedirect = (
   );
 
   if (!isAuthenticated && isProtected) {
-    return "/sign-in";
+    return "/login";
   }
 
   const isGuestOnly = AUTH_GUEST_ONLY_ROUTES.some(

@@ -35,7 +35,7 @@ export function NavbarAuth() {
     return (
       <div className="flex items-center gap-2">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/sign-in">Sign In</Link>
+          <Link href="/login">Sign In</Link>
         </Button>
         <Button asChild size="sm">
           <Link href="/register">Register</Link>
@@ -54,7 +54,7 @@ export function NavbarAuth() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar size="sm">
+          <Avatar>
             <AvatarImage
               src={session.user.image ?? undefined}
               alt={session.user.name}

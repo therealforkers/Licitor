@@ -1,8 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
-import { db } from "@/db/client";
-import * as schema from "@/db/schema";
+import { db } from "@/lib/db/client";
+import * as schema from "@/lib/db/schema";
 
 const betterAuthUrl = process.env.BETTER_AUTH_URL;
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET;

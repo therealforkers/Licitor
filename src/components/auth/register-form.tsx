@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { type RegisterInput, registerSchema } from "@/lib/validation/auth";
+import { type RegisterInput, registerSchema } from "@/lib/validators/auth";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -102,7 +102,7 @@ export function RegisterForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/sign-in" className="text-primary hover:underline">
+        <Link href="/login" className="text-primary hover:underline">
           Sign in
         </Link>
       </p>

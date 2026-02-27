@@ -24,8 +24,7 @@ const featuredLots = [
 
 export default function Home() {
   return (
-    <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,color-mix(in_oklab,var(--primary)_25%,transparent)_0%,transparent_45%)]" />
+    <div>
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-16 md:py-24">
         <div className="space-y-6">
           <Badge
