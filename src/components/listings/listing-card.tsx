@@ -66,7 +66,7 @@ export function ListingCard({
 
       <CardContent className="space-y-4 p-5">
         <div className="space-y-2">
-          <h2 className="line-clamp-2 text-xl font-semibold text-foreground">
+          <h2 className="truncate text-xl font-semibold text-foreground">
             {title}
           </h2>
           <p className="text-sm text-muted-foreground">Seller {sellerName}</p>

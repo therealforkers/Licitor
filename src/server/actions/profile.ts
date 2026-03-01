@@ -1,8 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth-session";
 import { db } from "@/lib/db/client";
 import { profiles } from "@/lib/db/schema";
 import {
@@ -54,10 +53,7 @@ export const updateProfileByUserId = async (
 };
 
 export const updateProfileAction = async (input: ProfileUpdateInput) => {
-  const requestHeaders = await headers();
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  });
+  const session = await getCurrentSession();
 
   const updatedProfile = await updateProfileByUserId(
     session?.user?.id ?? null,

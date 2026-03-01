@@ -8,8 +8,19 @@ describe("auth proxy route decisions", () => {
     expect(getAuthRouteRedirect("/profile/edit", false)).toBe("/login");
   });
 
+  it("redirects unauthenticated users from authenticated app routes", () => {
+    expect(getAuthRouteRedirect("/dashboard", false)).toBe("/login");
+    expect(getAuthRouteRedirect("/watchlist", false)).toBe("/login");
+    expect(getAuthRouteRedirect("/my-listings", false)).toBe("/login");
+    expect(getAuthRouteRedirect("/listings/new", false)).toBe("/login");
+  });
+
   it("does not redirect authenticated users from profile", () => {
     expect(getAuthRouteRedirect("/profile", true)).toBeNull();
+    expect(getAuthRouteRedirect("/dashboard", true)).toBeNull();
+    expect(getAuthRouteRedirect("/watchlist", true)).toBeNull();
+    expect(getAuthRouteRedirect("/my-listings", true)).toBeNull();
+    expect(getAuthRouteRedirect("/listings/new", true)).toBeNull();
   });
 
   it("redirects authenticated users from sign-in/register to profile", () => {

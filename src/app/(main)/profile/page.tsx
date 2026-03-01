@@ -1,10 +1,7 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
 import { ProfileForm } from "@/components/auth/profile-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { auth } from "@/lib/auth";
+import { requireCurrentUserSession } from "@/lib/auth-session";
 import { getCurrentProfile } from "@/server/queries/profile";
 
 const getInitials = (name: string) =>
@@ -16,14 +13,7 @@ const getInitials = (name: string) =>
     .join("");
 
 export default async function ProfilePage() {
-  const requestHeaders = await headers();
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  });
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireCurrentUserSession();
 
   const profile = await getCurrentProfile(session.user.id);
 

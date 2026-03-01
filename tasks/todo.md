@@ -100,8 +100,8 @@ Tasks:
 - Filter listings by the logged-in user and active tab.
 
 Acceptance Criteria:
-- [ ] Only the current user's listings appear.
-- [ ] Tab changes filter listings correctly by status.
+- [x] Only the current user's listings appear.
+- [x] Tab changes filter listings correctly by status.
 
 ### 1E: Create Listing Page - Layout & Image Preview
 Goal: Deliver the non-scrolling two-panel create-listing page with drag/drop and local preview states.

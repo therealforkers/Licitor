@@ -1,5 +1,11 @@
 export const AUTH_GUEST_ONLY_ROUTES = ["/login", "/register"] as const;
-export const AUTH_PROTECTED_ROUTES = ["/profile"] as const;
+export const AUTH_PROTECTED_ROUTES = [
+  "/profile",
+  "/dashboard",
+  "/watchlist",
+  "/my-listings",
+  "/listings/new",
+] as const;
 
 export const getAuthRouteRedirect = (
   pathname: string,
