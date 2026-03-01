@@ -1,6 +1,13 @@
 "use client";
 
-import { LogOut, UserCircle2 } from "lucide-react";
+import {
+  ClipboardList,
+  LayoutDashboard,
+  LogOut,
+  ShoppingBag,
+  UserCircle2,
+  WalletCards,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -22,6 +29,29 @@ const getInitials = (name: string) =>
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+
+const menuDestinations = [
+  {
+    href: "/listings/new",
+    label: "Sell My Item",
+    icon: ShoppingBag,
+  },
+  {
+    href: "/my-listings",
+    label: "My Listings",
+    icon: ClipboardList,
+  },
+  {
+    href: "/watchlist",
+    label: "My Watchlist",
+    icon: WalletCards,
+  },
+  {
+    href: "/dashboard",
+    label: "My Dashboard",
+    icon: LayoutDashboard,
+  },
+] as const;
 
 export function NavbarAuth() {
   const router = useRouter();
@@ -69,6 +99,16 @@ export function NavbarAuth() {
           <UserCircle2 className="size-4" />
           My Profile
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {menuDestinations.map((item) => (
+          <DropdownMenuItem
+            key={item.href}
+            onSelect={() => router.push(item.href)}
+          >
+            <item.icon className="size-4" />
+            {item.label}
+          </DropdownMenuItem>
+        ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleSignOut}>
           <LogOut className="size-4" />

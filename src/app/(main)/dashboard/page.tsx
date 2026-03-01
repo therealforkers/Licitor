@@ -1,13 +1,16 @@
+import { LayoutDashboard } from "lucide-react";
+
+import { PlaceholderPage } from "@/components/shared/placeholder-page";
+
 export default function DashboardPage() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-16">
-      <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
-        Dashboard
-      </h1>
-      <p className="mt-3 text-muted-foreground">
-        Dashboard modules are scaffolded in Phase 0 and will be implemented in a
-        later phase.
-      </p>
-    </section>
+    <PlaceholderPage
+      title="My Dashboard"
+      description="Seller metrics, current bids, and account activity will be assembled here in Phase 5. For now, the route resolves from the navbar without dead ends."
+      eyebrow="Account overview"
+      icon={LayoutDashboard}
+      primaryHref="/my-listings"
+      primaryLabel="Go to My Listings"
+    />
   );
 }

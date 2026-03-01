@@ -28,13 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex h-dvh flex-col overflow-hidden antialiased`}
       >
         <Navbar />
         <ViewTransition>
-          <main className="flex-1">{children}</main>
+          <div
+            data-app-scroll
+            className="mt-[74px] flex h-[calc(100dvh-74px)] min-h-0 flex-col overflow-y-auto"
+          >
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
         </ViewTransition>
-        <Footer />
       </body>
     </html>
   );

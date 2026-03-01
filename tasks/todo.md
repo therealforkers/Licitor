@@ -68,13 +68,13 @@ Acceptance Criteria:
 Goal: Expose the new seller/navigation destinations from the navbar and ensure each route resolves cleanly.
 
 Tasks:
-- Add a logo icon beside the existing brand text.
-- Extend the avatar dropdown while keeping current items.
-- Create placeholder pages for `Sell My Item`, `My Listings`, `My Watchlist`, and `My Dashboard`.
+- [x] Add a logo icon beside the existing brand text.
+- [x] Extend the avatar dropdown while keeping current items.
+- [x] Create placeholder pages for `Sell My Item`, `My Listings`, `My Watchlist`, and `My Dashboard`.
 
 Acceptance Criteria:
-- [ ] Every new dropdown item navigates without runtime error.
-- [ ] Placeholder pages render successfully.
+- [x] Every new dropdown item navigates without runtime error.
+- [x] Placeholder pages render successfully.
 
 ### 1C: Listings Page
 Goal: Deliver the public browse grid for seeded listings using the new listing card presentation.

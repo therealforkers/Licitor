@@ -1,7 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getListings } from "@/server/queries/listings";
 
@@ -61,12 +59,6 @@ export default async function ListingsPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      <div>
-        <Button asChild size="lg">
-          <Link href="/">Back to Home</Link>
-        </Button>
       </div>
     </section>
   );

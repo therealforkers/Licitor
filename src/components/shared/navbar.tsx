@@ -1,15 +1,19 @@
+import { Gavel } from "lucide-react";
 import Link from "next/link";
 import { NavbarAuth } from "@/components/shared/navbar-auth";
 
 export function Navbar() {
   return (
-    <header className="border-b border-border/70 bg-card/60 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-card/80 backdrop-blur">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="text-lg font-semibold tracking-wide text-primary transition-opacity hover:opacity-80"
+            className="flex items-center gap-2 text-lg font-semibold tracking-wide text-primary transition-opacity hover:opacity-80"
           >
+            <span className="flex size-9 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+              <Gavel className="size-4" />
+            </span>
             LICITOR
           </Link>
           <Link
