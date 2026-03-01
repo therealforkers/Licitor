@@ -122,16 +122,16 @@ Acceptance Criteria:
 Goal: Deliver signed Cloudinary upload, progress feedback, draft creation from placeholder JSON, and redirect to details.
 
 Tasks:
-- Plan server-side signature generation using `cloudinary`.
-- Plan XHR upload with percentage progress and post-upload processing state.
-- Plan `Continue` to create a draft listing from hardcoded JSON and redirect to `/listings/[id]`.
-- Plan `Reset` to delete the Cloudinary asset and restore State 1.
+- [x] Plan server-side signature generation using `cloudinary`.
+- [x] Plan XHR upload with percentage progress and post-upload processing state.
+- [x] Plan `Continue` to create a draft listing from hardcoded JSON and redirect to `/listings/[id]`.
+- [x] Plan `Reset` to delete the Cloudinary asset and restore State 1.
 
 Acceptance Criteria:
-- [ ] Upload progress is visible.
-- [ ] Uploaded state shows the Cloudinary-hosted image.
-- [ ] Continue creates a draft listing and redirects to its details page.
-- [ ] Reset removes the uploaded image and returns to the drop zone.
+- [x] Upload progress is visible.
+- [x] Uploaded state shows the Cloudinary-hosted image.
+- [x] Continue creates a draft listing and redirects to its details page.
+- [x] Reset removes the uploaded image and returns to the drop zone.
 
 ### 1G: Listing Details Page - Display
 Goal: Deliver the read-only listing details presentation for both owners and non-owners.
