@@ -124,3 +124,43 @@
     @apply bg-background text-foreground;
   }
 }
+
+@supports (view-transition-name: none) {
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: View Transition pseudo-elements are browser-defined. */
+  ::view-transition-old(root),
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: View Transition pseudo-elements are browser-defined. */
+    ::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: ease;
+  }
+
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: View Transition pseudo-elements are browser-defined. */
+  ::view-transition-old(root) {
+    animation-name: licitor-fade-out;
+  }
+
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: View Transition pseudo-elements are browser-defined. */
+  ::view-transition-new(root) {
+    animation-name: licitor-fade-in;
+  }
+}
+
+@keyframes licitor-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes licitor-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}

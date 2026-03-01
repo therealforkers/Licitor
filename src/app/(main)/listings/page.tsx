@@ -25,7 +25,10 @@ export default async function ListingsPage() {
           <Card key={listing.id} className="gap-0 overflow-hidden py-0">
             <div className="relative aspect-[3/2]">
               <Image
-                src={listing.image}
+                src={
+                  listing.images[0]?.url ??
+                  "https://picsum.photos/id/1/1200/900"
+                }
                 alt={listing.title}
                 fill
                 priority={index === 0}
@@ -41,7 +44,12 @@ export default async function ListingsPage() {
               <h2 className="text-xl font-semibold text-foreground">
                 {listing.title}
               </h2>
-              <p className="text-sm text-muted-foreground">{listing.content}</p>
+              <p className="text-sm text-muted-foreground">
+                {listing.description}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Seller {listing.seller.name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 Created{" "}
                 {listing.createdAt.toLocaleDateString("en-US", {

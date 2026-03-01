@@ -1,15 +1,31 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const listings = sqliteTable("listings", {
-  id: text("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  image: text("image").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-});
-
-export type Listing = typeof listings.$inferSelect;
+export const listingStatuses = [
+  "Draft",
+  "Active",
+  "Scheduled",
+  "Ended",
+] as const;
+export const listingCategories = [
+  "Electronics",
+  "Fashion",
+  "HomeGarden",
+  "Sports",
+  "Toys",
+  "Vehicles",
+  "Collectibles",
+  "Art",
+  "Books",
+  "Other",
+] as const;
+export const listingConditions = [
+  "New",
+  "LikeNew",
+  "Good",
+  "Fair",
+  "Poor",
+] as const;
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -81,11 +97,44 @@ export const profiles = sqliteTable("profiles", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const userRelations = relations(user, ({ one }) => ({
+export const listings = sqliteTable("listings", {
+  id: text("id").primaryKey(),
+  sellerId: text("seller_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category", { enum: listingCategories }).notNull(),
+  condition: text("condition", { enum: listingConditions }).notNull(),
+  reservePrice: integer("reserve_price"),
+  startingBid: integer("starting_bid").notNull(),
+  currentBid: integer("current_bid").notNull(),
+  bidCount: integer("bid_count").notNull().default(0),
+  startAt: integer("start_at", { mode: "timestamp_ms" }),
+  endAt: integer("end_at", { mode: "timestamp_ms" }),
+  status: text("status", { enum: listingStatuses }).notNull().default("Draft"),
+  location: text("location"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const listingImages = sqliteTable("listing_images", {
+  id: text("id").primaryKey(),
+  listingId: text("listing_id")
+    .notNull()
+    .references(() => listings.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  publicId: text("public_id"),
+  isMain: integer("is_main", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const userRelations = relations(user, ({ many, one }) => ({
   profile: one(profiles, {
     fields: [user.id],
     references: [profiles.userId],
   }),
+  listings: many(listings),
 }));
 
 export const profileRelations = relations(profiles, ({ one }) => ({
@@ -95,6 +144,26 @@ export const profileRelations = relations(profiles, ({ one }) => ({
   }),
 }));
 
+export const listingRelations = relations(listings, ({ many, one }) => ({
+  seller: one(user, {
+    fields: [listings.sellerId],
+    references: [user.id],
+  }),
+  images: many(listingImages),
+}));
+
+export const listingImageRelations = relations(listingImages, ({ one }) => ({
+  listing: one(listings, {
+    fields: [listingImages.listingId],
+    references: [listings.id],
+  }),
+}));
+
+export type ListingStatus = (typeof listingStatuses)[number];
+export type ListingCategory = (typeof listingCategories)[number];
+export type ListingCondition = (typeof listingConditions)[number];
+export type Listing = typeof listings.$inferSelect;
+export type ListingImage = typeof listingImages.$inferSelect;
 export type User = typeof user.$inferSelect;
 export type Session = typeof session.$inferSelect;
 export type Account = typeof account.$inferSelect;

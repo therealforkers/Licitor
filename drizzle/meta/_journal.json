@@ -8,6 +8,13 @@
       "when": 1772084411596,
       "tag": "0000_dapper_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1772366400000,
+      "tag": "0001_phase1a_listing_schema",
+      "breakpoints": true
     }
   ]
 }

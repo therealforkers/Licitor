@@ -2,7 +2,7 @@
 
 ## Document Metadata
 - Project: `licitor`
-- Last updated: 2026-02-27
+- Last updated: 2026-03-01
 - Owner: Product + Engineering
 - Status legend: `Not Started`, `In Progress`, `Blocked`, `Accepted`
 
@@ -167,25 +167,188 @@ Approval note: Approved on 2026-02-27.
 
 ## Phase 1 - Listing Creation and Management
 ### Scope
-- Sellers can create and manage auction listings with photos and scheduling.
+- Phase 1 covers listing schema expansion, seeded data, seller-facing draft/publish/edit/delete flows, public browse cards, personal listing management, create-listing upload UX, and listing details display.
 
-### Requirements
-- Create listing form with:
-- title, description, category, starting bid, optional reserve price, end date.
-- photo upload (single required, multi-image optional stretch).
-- Server action to create listing with ownership and validation.
-- Listing edit/cancel flows (seller-only).
-- Listing detail page shows auction metadata.
+### Models
+#### Listing
+- Fields: `id`, `title`, `description`, `category`, `condition`, `reservePrice`, `startingBid`, `currentBid`, `bidCount`, `startAt`, `endAt`, `status`, `sellerId`, `location`, `createdAt`, `updatedAt`
+- Relations: `seller`, `images[]`
 
-### Validation rules
-- `startingBid > 0`.
-- `reservePrice` nullable, but if present `reservePrice >= startingBid`.
-- `endDate` must be in the future and within max window (e.g. <= 30 days).
+#### ListingImage
+- Fields: `id`, `listingId`, `url`, `publicId`, `isMain`, `createdAt`
+- Relations: `listing`
+
+### Enums
+- `Status`: `Draft`, `Active`, `Scheduled`, `Ended`
+- `Category`: `Electronics`, `Fashion`, `HomeGarden`, `Sports`, `Toys`, `Vehicles`, `Collectibles`, `Art`, `Books`, `Other`
+- `Condition`: `New`, `LikeNew`, `Good`, `Fair`, `Poor`
+
+### Seed Data
+- Update the seed dataset to include 10 new listings using the Phase 1 canonical models.
+- Seed data must span multiple sellers, statuses, conditions, and date windows.
+- Seed data must include related `ListingImage` rows, with each listing having a main image and optional supporting images.
+- Seed data must include listings suitable for owner and non-owner detail views.
+- Draft listings must exist in the database but remain excluded from the public `/listings` page.
+
+### Application-Wide
+- Animate route transitions app-wide using Next 16 experimental `viewTransition` with a crossfade effect.
+
+### Phase 1A Implementation Notes
+- Drizzle schema now includes canonical `listings` and `listing_images` models with enum-backed status/category/condition fields plus temporary `bidCount`.
+- SQLite migrations now preserve legacy listing rows by backfilling them into the expanded schema and lifting legacy image URLs into `listing_images`.
+- Seed data now creates 10 listings, 21 related listing images, 4 demo sellers, and coverage across `Draft`, `Active`, `Scheduled`, and `Ended`.
+- Root layout enables Next 16 experimental `viewTransition` and wraps page content in React `ViewTransition` for app-wide crossfades.
+
+### Navbar Updates
+- Add an icon to the logo while preserving the existing brand text.
+- Keep existing avatar dropdown items and add:
+- `Sell My Item`
+- `My Listings`
+- `My Watchlist`
+- `My Dashboard`
+- Create placeholder pages for each new destination route introduced by the navbar changes.
+
+### Listings Page (`/listings`)
+- Render a card grid showing all public listings.
+- Each card contains:
+- Main image
+- Status badge overlaid on the image and color-coded by status
+- Title
+- Current price and bid count, both styled in the primary color
+- Seller name and time remaining
+- Show an empty state when no listings exist.
+- Hide `Draft` listings from the public dataset.
+
+### My Listings Page (`/my-listings`)
+- Reuse the listings card layout from `/listings`.
+- Filter results to the current user's listings only.
+- Add shadcn tabs above the grid for `Drafts`, `Active`, `Scheduled`, and `Ended`.
+- Tab selection changes the dataset shown in the grid without mixing statuses.
+
+### Create Listing Page (`/listings/new`)
+- Access to this route is provided from the `Sell My Item` navbar dropdown item.
+- Use a two-panel layout with a `Create Your Listing` header above the panels.
+- Panels sit side by side below the header, centered vertically, and occupy the maximum available height beneath the header while keeping visible top and bottom padding from surrounding layout chrome.
+- Left panel uses two-thirds width and right panel uses one-third width.
+- The page must not overflow and no scrollbars should be visible on this page.
+
+#### Left Panel - Image Upload
+- The panel has no internal header.
+- The upload flow has exactly 3 exclusive states.
+
+##### State 1: Drop Zone
+- Large centered upload icon.
+- Supports drag-and-drop and click-to-select via a hidden file input.
+- Shows a visual highlight on dragover.
+- Accepting a file transitions the UI to State 2.
+
+##### State 2: Local Preview
+- Show a local image preview before any remote upload occurs.
+- `Upload` starts the Cloudinary upload flow and advances to State 3.
+- `Cancel` discards the local preview and returns the UI to State 1.
+
+##### State 3: Uploaded
+- During upload, show a progress bar with percentage using XHR progress tracking.
+- After upload completes, show a `Processing...` state before the final hosted image view resolves.
+- On complete, display the Cloudinary-hosted image.
+- `Continue` creates a listing draft using hardcoded placeholder JSON and redirects to the listing details page.
+- `Reset` deletes the uploaded asset from Cloudinary and returns the UI to State 1.
+
+#### Right Panel
+- Static panel content with three numbered steps.
+- Each step uses a numbered circle with the heading aligned horizontally to the step number.
+- Add brief descriptive copy under each heading:
+- `1. Upload a clear photo`
+- `2. AI drafts listing details`
+- `3. Review and publish`
+
+### Listing Details Page (`/listings/[id]`)
+#### Top Section
+- Large title on the left and status badge on the right.
+- A row of metadata boxes below showing current bid, minimum bid, and time remaining.
+
+#### Left Panel (`3/5`)
+- One card wrapping all left-panel content.
+- Main image with a thumbnail strip below.
+- Support up to 5 thumbnails and clicking a thumbnail swaps the main image.
+- Metadata boxes for seller, location, category, and condition.
+- Description box below the metadata.
+
+#### Right Panel (`2/5`)
+- Context-dependent rendering based on whether the current user owns the listing.
+
+##### If listing owner -> Seller Controls
+| Listing Status | Available Actions |
+|---|---|
+| Draft | `Refine Listing` (opens form modal), `Publish` (immediate if no start date, scheduled if future date), `Delete` (hard delete, removes Cloudinary images, shadcn confirmation dialog warning this is permanent) |
+| Active | `Return to Draft` only (shadcn confirmation dialog warning listing will be locked to bids) |
+
+##### If not owner
+- Show a placeholder bid controls panel in Phase 1.
+- Bidding behavior is deferred to a later phase.
+
+#### Listing Form (Modal)
+- Triggered by `Refine Listing`.
+- Implemented as a shadcn dialog.
+- Editable fields:
+- Title, Description, Location on individual rows
+- Category and Condition on the same row
+- Starting Bid and Reserve Price (optional) on the same row
+- Start At (optional) and Ends At on the same row
+- Include a `Save Draft` button only.
+- Saving the modal must not publish the listing. Publishing remains an explicit seller control action.
+
+### Editing Constraints
+- Editing is allowed only when no bids have been received and the auction has not ended.
+- The first bid locks the listing from further edits.
+- Entering edit mode sets listing status to `Draft` to prevent bidding during editing.
+- If editing is abandoned, such as by closing the browser, the listing remains in `Draft` until the owner explicitly republishes it.
+- Draft listings are hidden from the public `/listings` page.
+- Bid rejection for `Draft` listings will be enforced during the bidding phase and should be noted as deferred work here.
+
+### Technical Notes
+- Cloudinary uploads must use signed uploads via the `cloudinary` npm package with server-side signature generation.
+- Cloudinary credentials must come from environment variables.
+- Upload progress must use XHR tracking so the UI can display percentage completion.
+- The `Continue` path uses hardcoded placeholder JSON in Phase 1 and will be replaced by the AI Smart Listing Creator in Phase 6.
+- The Phase 1 schema includes a temporary `bidCount` integer on `Listing` to support seeded/demo UI; it can be normalized later when a dedicated bidding model is introduced.
+- `currentBid` is stored on `Listing` in Phase 1 and is seed-driven for display.
+- Public `/listings` excludes `Draft`; `Scheduled` and `Ended` remain visible unless a later phase revises browse visibility.
+- Time-remaining display should map to lifecycle state:
+- `Active`: time until `endAt`
+- `Scheduled`: countdown until `startAt`
+- `Ended`: zero/ended presentation
 
 ### Acceptance
-- Seller can create/edit/cancel listing.
-- Unauthorized users cannot mutate others' listings.
-- Comprehensive tests for schema and actions.
+- Phase 1 acceptance is measured against the browser-visible and database-visible outcomes defined in sub-phases `1A` through `1H`.
+- Database acceptance:
+- 10 seeded listings exist.
+- Multiple sellers are represented.
+- Multiple statuses and conditions are represented.
+- Related `ListingImage` rows exist.
+- Public browse acceptance:
+- Draft listings are hidden.
+- The empty state renders when there are no public listings.
+- Status badge styling changes by status.
+- My listings acceptance:
+- Only the current user's listings appear.
+- Tabs filter correctly by status.
+- Create listing acceptance:
+- Dragover highlight appears.
+- Local preview appears before upload.
+- Cancel resets to the drop zone.
+- Upload progress is visible.
+- Uploaded state shows the hosted Cloudinary image.
+- Continue creates a draft listing and redirects to its details page.
+- Reset removes the uploaded asset and returns to the initial state.
+- Listing details acceptance:
+- Thumbnails swap the main image.
+- Owners see seller controls.
+- Non-owners see the placeholder bid panel.
+- The edit modal renders fields in the required layout.
+- Publish chooses `Active` or `Scheduled` based on `startAt`.
+- Delete confirms permanence and cleans up Cloudinary images.
+- Listings with bids reject editing.
 
 ## Phase 2 - Browse and Search Listings
 ### Scope

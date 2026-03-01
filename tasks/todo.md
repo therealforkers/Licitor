@@ -50,18 +50,119 @@ Status: Accepted
 
 ## Phase 1 - Listing Creation and Management
 Status: In Progress
-- [ ] Extend Drizzle schema for auction listing model
-- [ ] Create migration + seed updates
-- [ ] Add Zod schemas for listing create/update inputs
-- [ ] Build create listing page/form with React Hook Form
-- [ ] Implement image upload path/storage abstraction
-- [ ] Add create listing server action
-- [ ] Add edit listing server action (owner only)
-- [ ] Add cancel listing server action (owner only)
-- [ ] Build listing detail page for auction metadata
-- [ ] Add unit tests for validation rules
-- [ ] Add integration tests for create/edit/cancel auth and rules
-- [ ] Acceptance check: seller listing lifecycle complete
+### 1A: Schema, Seed Data & Route Transitions
+Goal: Deliver the expanded listing schema, image relation, seeded demo inventory, and visible app-wide crossfade route transitions.
+
+Tasks:
+- [x] Add `Listing`, `ListingImage`, enum definitions, and temporary `bidCount` field to Drizzle schema design notes.
+- [x] Plan migration updates for SQLite to replace or evolve the current minimal `listings` table.
+- [x] Plan seed updates for 10 listings across multiple sellers with varied statuses, conditions, and dates.
+- [x] Plan app-wide Next 16 experimental `viewTransition` crossfade behavior.
+
+Acceptance Criteria:
+- [x] SQLite contains 10 seeded listings and related images.
+- [x] Listing statuses and conditions vary across the dataset.
+- [x] Route changes visibly crossfade between pages.
+
+### 1B: Navbar & Placeholder Pages
+Goal: Expose the new seller/navigation destinations from the navbar and ensure each route resolves cleanly.
+
+Tasks:
+- Add a logo icon beside the existing brand text.
+- Extend the avatar dropdown while keeping current items.
+- Create placeholder pages for `Sell My Item`, `My Listings`, `My Watchlist`, and `My Dashboard`.
+
+Acceptance Criteria:
+- [ ] Every new dropdown item navigates without runtime error.
+- [ ] Placeholder pages render successfully.
+
+### 1C: Listings Page
+Goal: Deliver the public browse grid for seeded listings using the new listing card presentation.
+
+Tasks:
+- Build a reusable listing card shape for public browse.
+- Show main image, color-coded status badge, title, current price, bid count, seller, and time remaining.
+- Hide `Draft` listings from the public dataset.
+- Add an empty state for zero results.
+
+Acceptance Criteria:
+- [ ] `/listings` shows seeded non-draft listings as cards.
+- [ ] Draft listings do not appear publicly.
+- [ ] Empty state appears when the dataset is empty.
+
+### 1D: My Listings Page
+Goal: Deliver a current-user listings view with tab-based status filtering.
+
+Tasks:
+- Reuse the listing card component from `/listings`.
+- Add shadcn tabs for `Drafts`, `Active`, `Scheduled`, `Ended`.
+- Filter listings by the logged-in user and active tab.
+
+Acceptance Criteria:
+- [ ] Only the current user's listings appear.
+- [ ] Tab changes filter listings correctly by status.
+
+### 1E: Create Listing Page - Layout & Image Preview
+Goal: Deliver the non-scrolling two-panel create-listing page with drag/drop and local preview states.
+
+Tasks:
+- Build the centered two-panel layout beneath the page header.
+- Implement State 1 drop zone with dragover highlight and hidden file input.
+- Implement State 2 local image preview with `Upload` and `Cancel`.
+- Build the right-side static three-step explainer.
+
+Acceptance Criteria:
+- [ ] Selecting or dropping an image shows a local preview.
+- [ ] Cancel returns the UI to the empty drop zone.
+- [ ] No upload occurs yet.
+- [ ] The page shows no visible overflow scrollbars.
+
+### 1F: Create Listing Page - Cloudinary Upload
+Goal: Deliver signed Cloudinary upload, progress feedback, draft creation from placeholder JSON, and redirect to details.
+
+Tasks:
+- Plan server-side signature generation using `cloudinary`.
+- Plan XHR upload with percentage progress and post-upload processing state.
+- Plan `Continue` to create a draft listing from hardcoded JSON and redirect to `/listings/[id]`.
+- Plan `Reset` to delete the Cloudinary asset and restore State 1.
+
+Acceptance Criteria:
+- [ ] Upload progress is visible.
+- [ ] Uploaded state shows the Cloudinary-hosted image.
+- [ ] Continue creates a draft listing and redirects to its details page.
+- [ ] Reset removes the uploaded image and returns to the drop zone.
+
+### 1G: Listing Details Page - Display
+Goal: Deliver the read-only listing details presentation for both owners and non-owners.
+
+Tasks:
+- Build the top title/status/auction-metadata section.
+- Build the left `3/5` card with main image, thumbnails, metadata, and description.
+- Build the right `2/5` context panel showing seller-controls placeholder for owners and bid-controls placeholder for non-owners.
+- Support thumbnail click-to-swap for up to 5 images.
+
+Acceptance Criteria:
+- [ ] Seeded listings render complete details.
+- [ ] Thumbnail selection changes the main image.
+- [ ] Owner and non-owner panel states render appropriately.
+
+### 1H: Listing Details Page - Seller Actions & Edit Modal
+Goal: Deliver the owner action flows, edit modal, publish logic, delete confirmation, and draft-locking constraints.
+
+Tasks:
+- Implement seller controls per status table.
+- Build the shadcn edit dialog with all specified fields and row groupings.
+- Enforce edit eligibility: no bids and not ended.
+- Set listing status to `Draft` when entering edit mode.
+- Keep abandoned edits in `Draft`.
+- Plan delete to remove Cloudinary images and hard delete the listing.
+- Plan publish to choose immediate `Active` vs future `Scheduled`.
+
+Acceptance Criteria:
+- [ ] Owners can refine, save draft, publish, return active listings to draft, and delete where allowed.
+- [ ] Non-owners only see the placeholder bid panel.
+- [ ] Listings with bids cannot be edited.
+- [ ] Draft listings remain hidden from public browse.
 
 ## Phase 2 - Browse and Search Listings
 Status: Not Started

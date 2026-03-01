@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ViewTransition } from "react";
 import { Footer } from "@/components/shared/footer";
 import { Navbar } from "@/components/shared/navbar";
 import "./globals.css";
@@ -30,7 +31,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
       >
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <ViewTransition>
+          <main className="flex-1">{children}</main>
+        </ViewTransition>
         <Footer />
       </body>
     </html>

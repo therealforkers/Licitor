@@ -1,6 +1,7 @@
 import { db } from "@/lib/db/client";
 import {
   account,
+  listingImages,
   listings,
   profiles,
   session,
@@ -15,6 +16,7 @@ export const resetTestDatabaseState = async () => {
   await db.delete(account);
   await db.delete(verification);
   await db.delete(profiles);
-  await db.delete(user);
+  await db.delete(listingImages);
   await db.delete(listings);
+  await db.delete(user);
 };

@@ -10,16 +10,16 @@ describe("getListings integration", () => {
     await createListingFixture({
       id: "LST-OLDEST",
       title: "Old listing",
-      content: "Created first",
-      image: "https://example.com/old.jpg",
+      description: "Created first",
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     });
     await createListingFixture({
       id: "LST-NEWEST",
       title: "New listing",
-      content: "Created last",
-      image: "https://example.com/new.jpg",
+      description: "Created last",
       createdAt: new Date("2026-02-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-01T00:00:00.000Z"),
     });
 
     const result = await getListings();

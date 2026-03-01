@@ -1,8 +1,14 @@
-import { desc } from "drizzle-orm";
-
 import { db } from "@/lib/db/client";
-import { listings } from "@/lib/db/schema";
 
 export const getListings = async () => {
-  return db.select().from(listings).orderBy(desc(listings.createdAt));
+  return db.query.listings.findMany({
+    with: {
+      images: {
+        where: (images, { eq }) => eq(images.isMain, true),
+        orderBy: (images, { desc: orderDesc }) => [orderDesc(images.createdAt)],
+      },
+      seller: true,
+    },
+    orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+  });
 };
