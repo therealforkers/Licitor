@@ -15,6 +15,7 @@ This file defines working conventions for AI agents and engineers contributing t
 - Build: `npm run build`
 - Start production build: `npm run start`
 - Lint/check: `npm run lint`
+- Typecheck: `npx tsc --noEmit`
 - Format: `npm run format`
 
 ## Repo Structure
@@ -36,6 +37,7 @@ This file defines working conventions for AI agents and engineers contributing t
 - If a needed shadcn component is not present in `src/components/ui`, add it with `npx shadcn@latest add <component>` before building a custom alternative.
 - Keep styling in Tailwind utility classes; use global CSS only for shared tokens/base layers.
 - Run `npm run lint` before finishing changes.
+- Run `npx tsc --noEmit` after code changes and before finishing changes.
 - If code formatting changes are needed, run `npm run format`.
 
 ## Current Constraints
@@ -43,6 +45,7 @@ This file defines working conventions for AI agents and engineers contributing t
 - If adding tests, include a script in `package.json` and document usage here.
 
 ## Done Criteria for Changes
+- TypeScript passes with `npx tsc --noEmit`.
 - Code builds successfully with `npm run build`.
 - Lint passes with `npm run lint`.
 - UI changes are verified at `http://localhost:3000` in `npm run dev`.

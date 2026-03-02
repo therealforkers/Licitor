@@ -137,15 +137,15 @@ Acceptance Criteria:
 Goal: Deliver the read-only listing details presentation for both owners and non-owners.
 
 Tasks:
-- Build the top title/status/auction-metadata section.
-- Build the left `3/5` card with main image, thumbnails, metadata, and description.
-- Build the right `2/5` context panel showing seller-controls placeholder for owners and bid-controls placeholder for non-owners.
-- Support thumbnail click-to-swap for up to 5 images.
+- [x] Build the top title/status/auction-metadata section.
+- [x] Build the left `3/5` card with main image, thumbnails, metadata, and description.
+- [x] Build the right `2/5` context panel showing seller-controls placeholder for owners and bid-controls placeholder for non-owners.
+- [x] Support thumbnail click-to-swap for up to 5 images.
 
 Acceptance Criteria:
-- [ ] Seeded listings render complete details.
-- [ ] Thumbnail selection changes the main image.
-- [ ] Owner and non-owner panel states render appropriately.
+- [x] Seeded listings render complete details.
+- [x] Thumbnail selection changes the main image.
+- [x] Owner and non-owner panel states render appropriately.
 
 ### 1H: Listing Details Page - Seller Actions & Edit Modal
 Goal: Deliver the owner action flows, edit modal, publish logic, delete confirmation, and draft-locking constraints.

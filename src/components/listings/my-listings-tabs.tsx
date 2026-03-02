@@ -106,6 +106,7 @@ export function MyListingsTabs({
               bidCount={listing.bidCount}
               currentBid={listing.currentBid}
               endAt={listing.endAt ? new Date(listing.endAt) : null}
+              href={`/listings/${listing.id}`}
               imageUrl={listing.imageUrl}
               priority={index < 3}
               sellerName={listing.sellerName}

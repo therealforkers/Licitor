@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { db } from "@/lib/db/client";
-import { listings, profiles, user } from "@/lib/db/schema";
+import { listingImages, listings, profiles, user } from "@/lib/db/schema";
 import {
+  getListingById,
   getListingsBySellerId,
   getPublicListings,
 } from "@/server/queries/listings";
@@ -245,5 +246,58 @@ describe("getListingsBySellerId integration", () => {
     expect(result.every((listing) => listing.status === "Scheduled")).toBe(
       true,
     );
+  });
+});
+
+describe("getListingById integration", () => {
+  it("returns a complete listing record with seller and ordered images", async () => {
+    const createdAt = new Date("2026-02-10T12:00:00.000Z");
+    await db.insert(user).values({
+      id: "usr_detail_owner",
+      name: "Detail Seller",
+      email: "detail-seller@test.local",
+      emailVerified: true,
+      image: "https://example.com/detail-seller.png",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    await db.insert(profiles).values({
+      id: "prf_detail_owner",
+      userId: "usr_detail_owner",
+      name: "Detail Seller",
+      location: "Detail City",
+      bio: null,
+      image: "https://example.com/detail-seller.png",
+      createdAt,
+      updatedAt: createdAt,
+    });
+
+    await createListingFixture({
+      id: "LST-DETAILS",
+      sellerId: "usr_detail_owner",
+      title: "Detailed listing",
+      status: "Active",
+      createdAt,
+      updatedAt: createdAt,
+    });
+
+    await db.insert(listingImages).values({
+      id: "LST-DETAILS-IMG-2",
+      listingId: "LST-DETAILS",
+      url: "https://example.com/detail-listing-2.jpg",
+      publicId: null,
+      isMain: false,
+      createdAt: new Date("2026-02-10T12:05:00.000Z"),
+    });
+
+    const result = await getListingById("LST-DETAILS");
+
+    expect(result).not.toBeNull();
+    expect(result?.seller.name).toBe("Detail Seller");
+    expect(result?.images.map((image) => image.id)).toEqual([
+      "LST-DETAILS-IMG-1",
+      "LST-DETAILS-IMG-2",
+    ]);
+    expect(result?.status).toBe("Active");
   });
 });

@@ -1,10 +1,18 @@
-import type { ListingStatus } from "@/lib/db/schema";
+import type {
+  ListingCategory,
+  ListingCondition,
+  ListingStatus,
+} from "@/lib/db/schema";
 
 type ListingTiming = {
   endAt: Date | null;
   now?: Date;
   startAt: Date | null;
   status: ListingStatus;
+};
+
+type ListingImageSelectionRecord = {
+  isMain: boolean;
 };
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -24,6 +32,33 @@ const endedDateFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
   year: "numeric",
 });
+
+const listingDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+
+const conditionLabels = {
+  Fair: "Fair",
+  Good: "Good",
+  LikeNew: "Like new",
+  New: "New",
+  Poor: "Poor",
+} as const satisfies Record<ListingCondition, string>;
+
+const categoryLabels = {
+  Art: "Art",
+  Books: "Books",
+  Collectibles: "Collectibles",
+  Electronics: "Electronics",
+  Fashion: "Fashion",
+  HomeGarden: "Home & Garden",
+  Other: "Other",
+  Sports: "Sports",
+  Toys: "Toys",
+  Vehicles: "Vehicles",
+} as const satisfies Record<ListingCategory, string>;
 
 const getDurationParts = (targetDate: Date, now: Date) => {
   const milliseconds = targetDate.getTime() - now.getTime();
@@ -46,6 +81,32 @@ export const formatListingCurrency = (amountInCents: number) => {
 
 export const formatBidCount = (bidCount: number) => {
   return `${bidCount} bid${bidCount === 1 ? "" : "s"}`;
+};
+
+export const formatListingDateTime = (value: Date | null) => {
+  if (!value) {
+    return "To be announced";
+  }
+
+  return listingDateTimeFormatter.format(value);
+};
+
+export const formatListingCondition = (condition: ListingCondition) => {
+  return conditionLabels[condition];
+};
+
+export const formatListingCategory = (category: ListingCategory) => {
+  return categoryLabels[category];
+};
+
+export const getInitialListingImageIndex = (
+  images: ListingImageSelectionRecord[],
+  maxImages: number,
+) => {
+  const visibleImages = images.slice(0, maxImages);
+  const mainImageIndex = visibleImages.findIndex((image) => image.isMain);
+
+  return mainImageIndex >= 0 ? mainImageIndex : 0;
 };
 
 export const getListingStatusTone = (status: ListingStatus) => {

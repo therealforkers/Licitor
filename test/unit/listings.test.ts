@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatBidCount,
+  formatListingCategory,
+  formatListingCondition,
   formatListingCurrency,
+  formatListingDateTime,
+  getInitialListingImageIndex,
   getListingStatusTone,
   getListingTimeLabel,
 } from "@/lib/listings";
@@ -15,6 +19,15 @@ describe("listing helpers", () => {
   it("pluralizes bid counts", () => {
     expect(formatBidCount(1)).toBe("1 bid");
     expect(formatBidCount(7)).toBe("7 bids");
+  });
+
+  it("formats listing metadata labels for detail cards", () => {
+    expect(formatListingCategory("HomeGarden")).toBe("Home & Garden");
+    expect(formatListingCondition("LikeNew")).toBe("Like new");
+    expect(formatListingDateTime(new Date("2026-03-01T18:30:00.000Z"))).toBe(
+      "Mar 1, 2026, 6:30 PM",
+    );
+    expect(formatListingDateTime(null)).toBe("To be announced");
   });
 
   it("maps listing statuses to stable badge tones", () => {
@@ -53,5 +66,18 @@ describe("listing helpers", () => {
         status: "Ended",
       }),
     ).toBe("Ended Feb 20, 2026");
+  });
+
+  it("prefers the main image when initializing the details gallery", () => {
+    expect(
+      getInitialListingImageIndex(
+        [{ isMain: false }, { isMain: true }, { isMain: false }],
+        5,
+      ),
+    ).toBe(1);
+
+    expect(
+      getInitialListingImageIndex([{ isMain: false }, { isMain: false }], 5),
+    ).toBe(0);
   });
 });

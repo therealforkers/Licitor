@@ -53,6 +53,7 @@ export default async function ListingsPage() {
               bidCount={listing.bidCount}
               currentBid={listing.currentBid}
               endAt={listing.endAt}
+              href={`/listings/${listing.id}`}
               imageUrl={listing.images[0]?.url ?? null}
               priority={index < 3}
               sellerName={listing.seller.name}
