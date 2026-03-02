@@ -2,7 +2,7 @@
 
 ## Document Metadata
 - Project: `licitor`
-- Last updated: 2026-03-01
+- Last updated: 2026-03-02
 - Owner: Product + Engineering
 - Status legend: `Not Started`, `In Progress`, `Blocked`, `Accepted`
 
@@ -10,7 +10,7 @@
 | Phase | Name | Status | Acceptance Gate |
 |---|---|---|---|
 | 0 | Foundation and Tooling | Accepted | Build + lint + unit + integration baseline stable |
-| 1 | Listing Creation and Management | In Progress | Listing CRUD + image upload + validation complete |
+| 1 | Listing Creation and Management | Accepted | Listing CRUD + image upload + validation complete |
 | 2 | Browse and Search Listings | Not Started | Search/filter UX and query performance accepted |
 | 3 | Bidding and Real-Time Updates | Not Started | Bid flow + concurrency + live updates accepted |
 | 4 | Auction Finalization and Notifications | Not Started | Auction close job + winner selection + notifications accepted |
@@ -166,6 +166,7 @@ Approval note: Approved on 2026-02-27.
 - Local quality gates pass: lint, build, unit, integration.
 
 ## Phase 1 - Listing Creation and Management
+Approval note: Accepted on 2026-03-02.
 ### Scope
 - Phase 1 covers listing schema expansion, seeded data, seller-facing draft/publish/edit/delete flows, public browse cards, personal listing management, create-listing upload UX, and listing details display.
 

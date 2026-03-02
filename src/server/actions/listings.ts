@@ -68,6 +68,7 @@ export const createDraftListingAction = async (input: {
   const listingId = randomUUID();
   const listingImageId = randomUUID();
   const now = new Date();
+  const defaultEndAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   db.transaction((tx) => {
     tx.insert(listings)
@@ -83,7 +84,7 @@ export const createDraftListingAction = async (input: {
         currentBid: draftValues.startingBid,
         bidCount: 0,
         startAt: null,
-        endAt: null,
+        endAt: defaultEndAt,
         status: "Draft",
         location: draftValues.location,
         createdAt: now,

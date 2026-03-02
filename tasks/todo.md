@@ -49,7 +49,7 @@ Status: Accepted
   - [x] Update this `tasks/todo.md` with ordered implementation status
 
 ## Phase 1 - Listing Creation and Management
-Status: In Progress
+Status: Accepted
 ### 1A: Schema, Seed Data & Route Transitions
 Goal: Deliver the expanded listing schema, image relation, seeded demo inventory, and visible app-wide crossfade route transitions.
 
@@ -81,10 +81,10 @@ Approval note: Approved on 2026-03-01.
 Goal: Deliver the public browse grid for seeded listings using the new listing card presentation.
 
 Tasks:
-- Build a reusable listing card shape for public browse.
-- Show main image, color-coded status badge, title, current price, bid count, seller, and time remaining.
-- Hide `Draft` listings from the public dataset.
-- Add an empty state for zero results.
+- [x] Build a reusable listing card shape for public browse.
+- [x] Show main image, color-coded status badge, title, current price, bid count, seller, and time remaining.
+- [x] Hide `Draft` listings from the public dataset.
+- [x] Add an empty state for zero results.
 
 Acceptance Criteria:
 - [x] `/listings` shows seeded non-draft listings as cards.
@@ -151,19 +151,19 @@ Acceptance Criteria:
 Goal: Deliver the owner action flows, edit modal, publish logic, delete confirmation, and draft-locking constraints.
 
 Tasks:
-- Implement seller controls per status table.
-- Build the shadcn edit dialog with all specified fields and row groupings.
-- Enforce edit eligibility: no bids and not ended.
-- Set listing status to `Draft` when entering edit mode.
-- Keep abandoned edits in `Draft`.
-- Plan delete to remove Cloudinary images and hard delete the listing.
-- Plan publish to choose immediate `Active` vs future `Scheduled`.
+- [x] Implement seller controls per status table.
+- [x] Build the shadcn edit dialog with all specified fields and row groupings.
+- [x] Enforce edit eligibility: no bids and not ended.
+- [x] Set listing status to `Draft` when entering edit mode.
+- [x] Keep abandoned edits in `Draft`.
+- [x] Plan delete to remove Cloudinary images and hard delete the listing.
+- [x] Plan publish to choose immediate `Active` vs future `Scheduled`.
 
 Acceptance Criteria:
-- [ ] Owners can refine, save draft, publish, return active listings to draft, and delete where allowed.
-- [ ] Non-owners only see the placeholder bid panel.
-- [ ] Listings with bids cannot be edited.
-- [ ] Draft listings remain hidden from public browse.
+- [x] Owners can refine, save draft, publish, return active listings to draft, and delete where allowed.
+- [x] Non-owners only see the placeholder bid panel.
+- [x] Listings with bids cannot be edited.
+- [x] Draft listings remain hidden from public browse.
 
 ## Phase 2 - Browse and Search Listings
 Status: Not Started
@@ -268,3 +268,4 @@ Status: Not Started
 - 2026-02-27: Initial phase plan created.
 - 2026-02-27: Phase 0 implemented with grouped route migration, canonical `src/lib/db` + `src/lib/validators` paths, transaction-based integration test harness, fixture factories, and MSW baseline mocking.
 - 2026-02-27: Phase 0 formally approved; tracking moved to Phase 1 in progress.
+- 2026-03-02: Phase 1 formally approved; tracking moved to Phase 1 accepted and Phase 2 not started.
