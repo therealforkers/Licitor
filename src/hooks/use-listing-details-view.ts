@@ -2,7 +2,12 @@
 
 import type { DragEvent } from "react";
 import { useEffect, useReducer, useRef } from "react";
-
+import {
+  createInitialListingDetailsState,
+  hasReachedListingImageLimit,
+  type ListingDetailsImage,
+  listingDetailsReducer,
+} from "@/components/listing-details/listing-details-view-state";
 import {
   deleteCloudinaryImage,
   uploadImageToCloudinary,
@@ -14,12 +19,6 @@ import {
   deleteListingImageAction,
   setMainListingImageAction,
 } from "@/server/actions/listings";
-import {
-  createInitialListingDetailsState,
-  hasReachedListingImageLimit,
-  type ListingDetailsImage,
-  listingDetailsReducer,
-} from "./listing-details-view-state";
 
 const imageLimit = 5;
 

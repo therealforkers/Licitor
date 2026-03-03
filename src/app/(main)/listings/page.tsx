@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ListingCard } from "@/components/listings/listing-card";
+import { ListingCard } from "@/components/shared/listing-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicListings } from "@/server/queries/listings";

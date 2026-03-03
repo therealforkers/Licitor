@@ -10,12 +10,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
-import { ListingSellerControls } from "@/components/listings/listing-seller-controls";
-import { useListingDetailsView } from "@/components/listings/use-listing-details-view";
+import { ListingSellerControls } from "@/components/listing-details/listing-seller-controls";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useListingDetailsView } from "@/hooks/use-listing-details-view";
 import {
   formatBidCount,
   formatListingCategory,

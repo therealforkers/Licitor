@@ -1,4 +1,4 @@
-import { CreateListingWorkspace } from "@/components/listings/create-listing-workspace";
+import { CreateListingWorkspace } from "@/components/create-listing/create-listing-workspace";
 
 export default function CreateListingPage() {
   return (

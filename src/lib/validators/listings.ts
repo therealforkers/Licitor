@@ -137,6 +137,27 @@ const optionalStartingBidField = z
     return value ?? null;
   });
 
+export const createDraftListingSchema = z.object({
+  imageUrl: z.string().url("A hosted image URL is required."),
+  publicId: z.string().min(1, "A Cloudinary public id is required."),
+});
+
+export const addListingImageSchema = z.object({
+  listingId: z.string().min(1, "Listing id is required."),
+  imageUrl: z.string().url("A hosted image URL is required."),
+  publicId: z.string().min(1, "A Cloudinary public id is required."),
+});
+
+export const deleteListingImageSchema = z.object({
+  listingId: z.string().min(1, "Listing id is required."),
+  imageId: z.string().min(1, "Listing image id is required."),
+});
+
+export const setMainListingImageSchema = z.object({
+  listingId: z.string().min(1, "Listing id is required."),
+  imageId: z.string().min(1, "Listing image id is required."),
+});
+
 export const updateListingDraftSchema = z
   .object({
     category: z.enum(listingCategories, {
@@ -162,7 +183,7 @@ export const updateListingDraftSchema = z
     location: optionalTextField,
     reservePrice: optionalPriceField("Reserve price"),
     startAt: optionalDateTimeField,
-    startingBid: optionalStartingBidField.optional(),
+    startingBid: optionalStartingBidField.default(null),
     title: z.string().trim().min(8, "Title must be at least 8 characters."),
   })
   .superRefine((value, context) => {
@@ -199,4 +220,10 @@ export const updateListingDraftSchema = z
 export type UpdateListingDraftInput = z.input<typeof updateListingDraftSchema>;
 export type UpdateListingDraftValues = z.output<
   typeof updateListingDraftSchema
+>;
+export type CreateDraftListingInput = z.infer<typeof createDraftListingSchema>;
+export type AddListingImageInput = z.infer<typeof addListingImageSchema>;
+export type DeleteListingImageInput = z.infer<typeof deleteListingImageSchema>;
+export type SetMainListingImageInput = z.infer<
+  typeof setMainListingImageSchema
 >;

@@ -1,4 +1,4 @@
-import { MyListingsTabs } from "@/components/listings/my-listings-tabs";
+import { MyListingsTabs } from "@/components/my-listings/my-listings-tabs";
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import type { ListingStatus } from "@/lib/db/schema";
 import { getListingsBySellerId } from "@/server/queries/listings";

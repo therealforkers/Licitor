@@ -1,13 +1,14 @@
 "use server";
 
-import { eq } from "drizzle-orm";
 import { getCurrentSession } from "@/lib/auth-session";
-import { db } from "@/lib/db/client";
-import { profiles } from "@/lib/db/schema";
 import {
   type ProfileUpdateInput,
   profileUpdateSchema,
 } from "@/lib/validators/profile";
+import {
+  getProfileByUserIdData,
+  updateProfileByUserIdData,
+} from "@/server/data/profiles";
 
 const toNullable = (value?: string) => {
   const trimmed = value?.trim();
@@ -39,11 +40,8 @@ export const updateProfileByUserId = async (
     updatedAt: now,
   };
 
-  await db.update(profiles).set(nextValues).where(eq(profiles.userId, userId));
-
-  const updatedProfile = await db.query.profiles.findFirst({
-    where: eq(profiles.userId, userId),
-  });
+  await updateProfileByUserIdData(userId, nextValues);
+  const updatedProfile = await getProfileByUserIdData(userId);
 
   if (!updatedProfile) {
     throw new Error("Profile not found.");

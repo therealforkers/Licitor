@@ -1,11 +1,10 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-
+import { useCreateListingWorkspace } from "@/hooks/use-create-listing-workspace";
 import { CreateListingImageDropzone } from "./create-listing-image-dropzone";
 import { CreateListingStepsCard } from "./create-listing-steps-card";
 import { CreateListingWorkspaceActions } from "./create-listing-workspace-actions";
-import { useCreateListingWorkspace } from "./use-create-listing-workspace";
 
 const explainerSteps = [
   {

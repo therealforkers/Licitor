@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { ListingDetailsView } from "@/components/listings/listing-details-view";
+import { ListingDetailsView } from "@/components/listing-details/listing-details-view";
 import { getCurrentSession } from "@/lib/auth-session";
 import { getListingById } from "@/server/queries/listings";
 

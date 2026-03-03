@@ -2,41 +2,34 @@
 
 import { randomUUID } from "node:crypto";
 
-import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
-import { db } from "@/lib/db/client";
 import type { ListingStatus } from "@/lib/db/schema";
-import { listingImages, listings } from "@/lib/db/schema";
 import {
+  type AddListingImageInput,
+  addListingImageSchema,
+  type CreateDraftListingInput,
+  createDraftListingSchema,
+  type DeleteListingImageInput,
+  deleteListingImageSchema,
+  type SetMainListingImageInput,
+  setMainListingImageSchema,
   type UpdateListingDraftInput,
   type UpdateListingDraftValues,
   updateListingDraftSchema,
 } from "@/lib/validators/listings";
-
-const createDraftListingSchema = z.object({
-  imageUrl: z.string().url("A hosted image URL is required."),
-  publicId: z.string().min(1, "A Cloudinary public id is required."),
-});
-
-const addListingImageSchema = z.object({
-  listingId: z.string().min(1, "Listing id is required."),
-  imageUrl: z.string().url("A hosted image URL is required."),
-  publicId: z.string().min(1, "A Cloudinary public id is required."),
-});
-
-const deleteListingImageSchema = z.object({
-  listingId: z.string().min(1, "Listing id is required."),
-  imageId: z.string().min(1, "Listing image id is required."),
-});
-
-const setMainListingImageSchema = z.object({
-  listingId: z.string().min(1, "Listing id is required."),
-  imageId: z.string().min(1, "Listing image id is required."),
-});
+import {
+  addListingImageData,
+  createDraftListingWithMainImageData,
+  deleteListingBySellerData,
+  deleteListingImageData,
+  getOwnedListingWithImagesData,
+  setMainListingImageData,
+  updateListingDraftData,
+  updateListingStatusData,
+} from "@/server/data/listings";
 
 const buildPlaceholderDraft = () => {
   return {
@@ -55,10 +48,9 @@ const resolveStartingBid = (startingBid: number | null | undefined) => {
   return startingBid ?? 0;
 };
 
-export const createDraftListingAction = async (input: {
-  imageUrl: string;
-  publicId: string;
-}) => {
+export const createDraftListingAction = async (
+  input: CreateDraftListingInput,
+) => {
   const session = await requireCurrentUserSession();
   const parsed = createDraftListingSchema.safeParse(input);
 
@@ -75,38 +67,16 @@ export const createDraftListingAction = async (input: {
   const defaultEndAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   const startingBid = resolveStartingBid(draftValues.startingBid);
 
-  db.transaction((tx) => {
-    tx.insert(listings)
-      .values({
-        id: listingId,
-        sellerId: session.user.id,
-        title: draftValues.title,
-        description: draftValues.description,
-        category: draftValues.category,
-        condition: draftValues.condition,
-        reservePrice: draftValues.reservePrice,
-        startingBid,
-        currentBid: startingBid,
-        bidCount: 0,
-        startAt: null,
-        endAt: defaultEndAt,
-        status: "Draft",
-        location: draftValues.location,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-
-    tx.insert(listingImages)
-      .values({
-        id: listingImageId,
-        listingId,
-        url: parsed.data.imageUrl,
-        publicId: parsed.data.publicId,
-        isMain: true,
-        createdAt: now,
-      })
-      .run();
+  createDraftListingWithMainImageData({
+    defaultEndAt,
+    draftValues,
+    imageUrl: parsed.data.imageUrl,
+    listingId,
+    listingImageId,
+    now,
+    publicId: parsed.data.publicId,
+    sellerId: session.user.id,
+    startingBid,
   });
 
   revalidatePath("/listings");
@@ -117,13 +87,7 @@ export const createDraftListingAction = async (input: {
 };
 
 const getOwnedListing = async (listingId: string, sellerId: string) => {
-  return db.query.listings.findFirst({
-    where: (listing, { and, eq }) =>
-      and(eq(listing.id, listingId), eq(listing.sellerId, sellerId)),
-    with: {
-      images: true,
-    },
-  });
+  return getOwnedListingWithImagesData(listingId, sellerId);
 };
 
 const assertListingCanBeEdited = (listing: {
@@ -168,11 +132,7 @@ const revalidateListingPaths = (listingId: string) => {
   revalidatePath(`/listings/${listingId}`);
 };
 
-export const addListingImageAction = async (input: {
-  imageUrl: string;
-  listingId: string;
-  publicId: string;
-}) => {
+export const addListingImageAction = async (input: AddListingImageInput) => {
   const session = await requireCurrentUserSession();
   const parsed = addListingImageSchema.safeParse(input);
 
@@ -197,16 +157,13 @@ export const addListingImageAction = async (input: {
   const listingImageId = randomUUID();
   const createdAt = new Date();
 
-  db.insert(listingImages)
-    .values({
-      id: listingImageId,
-      listingId: parsed.data.listingId,
-      url: parsed.data.imageUrl,
-      publicId: parsed.data.publicId,
-      isMain: false,
-      createdAt,
-    })
-    .run();
+  addListingImageData({
+    createdAt,
+    id: listingImageId,
+    imageUrl: parsed.data.imageUrl,
+    listingId: parsed.data.listingId,
+    publicId: parsed.data.publicId,
+  });
 
   revalidateListingPaths(parsed.data.listingId);
 
@@ -219,10 +176,9 @@ export const addListingImageAction = async (input: {
   };
 };
 
-export const deleteListingImageAction = async (input: {
-  imageId: string;
-  listingId: string;
-}) => {
+export const deleteListingImageAction = async (
+  input: DeleteListingImageInput,
+) => {
   const session = await requireCurrentUserSession();
   const parsed = deleteListingImageSchema.safeParse(input);
 
@@ -252,14 +208,7 @@ export const deleteListingImageAction = async (input: {
     throw new Error("Main image cannot be deleted.");
   }
 
-  db.delete(listingImages)
-    .where(
-      and(
-        eq(listingImages.id, parsed.data.imageId),
-        eq(listingImages.listingId, parsed.data.listingId),
-      ),
-    )
-    .run();
+  deleteListingImageData(parsed.data.listingId, parsed.data.imageId);
 
   if (targetImage.publicId) {
     await deleteCloudinaryImage(targetImage.publicId);
@@ -272,10 +221,9 @@ export const deleteListingImageAction = async (input: {
   };
 };
 
-export const setMainListingImageAction = async (input: {
-  imageId: string;
-  listingId: string;
-}) => {
+export const setMainListingImageAction = async (
+  input: SetMainListingImageInput,
+) => {
   const session = await requireCurrentUserSession();
   const parsed = setMainListingImageSchema.safeParse(input);
 
@@ -301,22 +249,7 @@ export const setMainListingImageAction = async (input: {
     throw new Error("Listing image not found.");
   }
 
-  db.transaction((tx) => {
-    tx.update(listingImages)
-      .set({ isMain: false })
-      .where(eq(listingImages.listingId, parsed.data.listingId))
-      .run();
-
-    tx.update(listingImages)
-      .set({ isMain: true })
-      .where(
-        and(
-          eq(listingImages.id, parsed.data.imageId),
-          eq(listingImages.listingId, parsed.data.listingId),
-        ),
-      )
-      .run();
-  });
+  setMainListingImageData(parsed.data.listingId, parsed.data.imageId);
 
   revalidateListingPaths(parsed.data.listingId);
 
@@ -349,23 +282,13 @@ export const updateListingDraftAction = async (
   const nextValues = parsed.data;
   const nextStartingBid = resolveStartingBid(nextValues.startingBid);
 
-  db.update(listings)
-    .set({
-      category: nextValues.category,
-      condition: nextValues.condition,
-      currentBid: listing.bidCount === 0 ? nextStartingBid : listing.currentBid,
-      description: nextValues.description,
-      endAt: nextValues.endAt,
-      location: nextValues.location,
-      reservePrice: nextValues.reservePrice,
-      startAt: nextValues.startAt,
-      startingBid: nextStartingBid,
-      status: "Draft",
-      title: nextValues.title,
-      updatedAt: new Date(),
-    })
-    .where(eq(listings.id, listingId))
-    .run();
+  updateListingDraftData({
+    currentBid: listing.bidCount === 0 ? nextStartingBid : listing.currentBid,
+    listingId,
+    nextStartingBid,
+    updatedAt: new Date(),
+    values: nextValues,
+  });
 
   revalidateListingPaths(listingId);
 
@@ -388,13 +311,7 @@ export const publishListingAction = async (listingId: string) => {
   const nextStatus =
     listing.startAt && listing.startAt.getTime() > now ? "Scheduled" : "Active";
 
-  db.update(listings)
-    .set({
-      status: nextStatus,
-      updatedAt: new Date(),
-    })
-    .where(eq(listings.id, listingId))
-    .run();
+  updateListingStatusData(listingId, nextStatus, new Date());
 
   revalidateListingPaths(listingId);
 
@@ -420,13 +337,7 @@ export const returnListingToDraftAction = async (listingId: string) => {
     );
   }
 
-  db.update(listings)
-    .set({
-      status: "Draft",
-      updatedAt: new Date(),
-    })
-    .where(eq(listings.id, listingId))
-    .run();
+  updateListingStatusData(listingId, "Draft", new Date());
 
   revalidateListingPaths(listingId);
 
@@ -451,11 +362,7 @@ export const deleteListingAction = async (listingId: string) => {
     }
   }
 
-  db.delete(listings)
-    .where(
-      and(eq(listings.id, listingId), eq(listings.sellerId, session.user.id)),
-    )
-    .run();
+  deleteListingBySellerData(listingId, session.user.id);
 
   revalidatePath("/listings");
   revalidatePath("/my-listings");

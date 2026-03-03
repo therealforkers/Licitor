@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
-import { ListingActionAlertDialog } from "@/components/listings/listing-action-alert-dialog";
-import { RefineListingDialog } from "@/components/listings/refine-listing-dialog";
+import { ListingActionAlertDialog } from "@/components/listing-details/listing-action-alert-dialog";
+import { RefineListingDialog } from "@/components/listing-details/refine-listing-dialog";
 import { Button } from "@/components/ui/button";
 import type {
   ListingCategory,

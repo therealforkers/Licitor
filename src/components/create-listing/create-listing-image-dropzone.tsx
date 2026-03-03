@@ -7,11 +7,10 @@ import type { DragEvent, RefObject } from "react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import type { PreviewState } from "@/hooks/use-create-listing-workspace";
 import type { CloudinaryUploadedAsset } from "@/lib/cloudinary-upload";
 import { describeCreateListingImage } from "@/lib/create-listing";
 import { cn } from "@/lib/utils";
-
-import type { PreviewState } from "./use-create-listing-workspace";
 
 type CreateListingImageDropzoneProps = {
   inputRef: RefObject<HTMLInputElement | null>;

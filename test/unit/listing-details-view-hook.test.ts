@@ -5,7 +5,7 @@ import {
   createInitialListingDetailsState,
   hasReachedListingImageLimit,
   listingDetailsReducer,
-} from "@/components/listings/listing-details-view-state";
+} from "@/components/listing-details/listing-details-view-state";
 
 describe("listing details hook helpers", () => {
   it("keeps selected image index in range after image removal", () => {

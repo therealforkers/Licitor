@@ -1,4 +1,4 @@
-import { ProfileForm } from "@/components/auth/profile-form";
+import { ProfileForm } from "@/components/profile/profile-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireCurrentUserSession } from "@/lib/auth-session";
