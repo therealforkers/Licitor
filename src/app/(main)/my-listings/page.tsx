@@ -41,19 +41,7 @@ export default async function MyListingsPage({
         description="Review only your auctions, split by drafts, live listings, scheduled launches, and completed sales."
       />
 
-      <MyListingsTabs
-        initialStatus={activeStatus}
-        listings={listingRows.map((listing) => ({
-          id: listing.id,
-          bidCount: listing.bidCount,
-          currentBid: listing.currentBid,
-          endAt: listing.endAt?.toISOString() ?? null,
-          imageUrl: listing.images[0]?.url ?? null,
-          sellerName: listing.seller.name,
-          startAt: listing.startAt?.toISOString() ?? null,
-          title: listing.title,
-        }))}
-      />
+      <MyListingsTabs initialStatus={activeStatus} listings={listingRows} />
     </section>
   );
 }

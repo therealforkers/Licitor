@@ -26,50 +26,22 @@ import {
   getListingTimeLabel,
 } from "@/lib/listings";
 import { cn } from "@/lib/utils";
+import type { ListingDetailsDto } from "@/types/listings";
 
 type ListingDetailsViewProps = {
-  bidCount: number;
-  category: Parameters<typeof formatListingCategory>[0];
-  condition: Parameters<typeof formatListingCondition>[0];
-  currentBid: number | null;
-  description: string;
-  endAt: Date | null;
-  id: string;
-  images: Array<{
-    id: string;
-    isMain: boolean;
-    url: string;
-  }>;
   isOwner: boolean;
-  location: string | null;
-  reservePrice: number | null;
-  sellerName: string;
-  startAt: Date | null;
-  startingBid: number | null;
-  status: Parameters<typeof getListingStatusTone>[0];
-  title: string;
+  listing: ListingDetailsDto;
 };
 
 const fallbackImage = "https://picsum.photos/id/1/1200/900";
 
 export function ListingDetailsView({
-  bidCount,
-  category,
-  condition,
-  currentBid,
-  description,
-  endAt,
-  id,
-  images,
   isOwner,
-  location,
-  reservePrice,
-  sellerName,
-  startAt,
-  startingBid,
-  status,
-  title,
+  listing,
 }: ListingDetailsViewProps) {
+  const startAt = listing.startAt ? new Date(listing.startAt) : null;
+  const endAt = listing.endAt ? new Date(listing.endAt) : null;
+
   const {
     actionError,
     canManageGalleryImages,
@@ -95,10 +67,10 @@ export function ListingDetailsView({
     uploadProgress,
     visibleImages,
   } = useListingDetailsView({
-    images,
+    images: listing.images,
     isOwner,
-    listingId: id,
-    status,
+    listingId: listing.id,
+    status: listing.status,
   });
   const mainImageIndex = visibleImages.findIndex((image) => image.isMain);
   const canSelectMainFromPreview =
@@ -108,7 +80,7 @@ export function ListingDetailsView({
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-12">
       <PageHeader
         eyebrow="Listing details"
-        title={title}
+        title={listing.title}
         className="space-y-2"
         titleClassName="max-w-4xl tracking-tight"
         rightSlot={
@@ -116,10 +88,10 @@ export function ListingDetailsView({
             variant="outline"
             className={cn(
               "w-fit border px-3 py-1 text-[0.7rem] uppercase tracking-[0.18em] lg:mt-2",
-              getListingStatusTone(status),
+              getListingStatusTone(listing.status),
             )}
           >
-            {status}
+            {listing.status}
           </Badge>
         }
       />
@@ -130,7 +102,7 @@ export function ListingDetailsView({
             Current price
           </p>
           <p className="mt-2 text-xl font-semibold text-primary">
-            {formatListingCurrency(currentBid ?? 0)}
+            {formatListingCurrency(listing.currentBid ?? 0)}
           </p>
         </div>
         <div className="rounded-2xl border border-border/70 bg-background/50 px-4 py-3">
@@ -138,7 +110,7 @@ export function ListingDetailsView({
             Activity
           </p>
           <p className="mt-2 text-base font-semibold text-foreground">
-            {formatBidCount(bidCount)}
+            {formatBidCount(listing.bidCount)}
           </p>
         </div>
         <div className="rounded-2xl border border-border/70 bg-background/50 px-4 py-3">
@@ -146,7 +118,7 @@ export function ListingDetailsView({
             Auction timing
           </p>
           <p className="mt-2 text-base font-semibold text-foreground">
-            {getListingTimeLabel({ endAt, startAt, status })}
+            {getListingTimeLabel({ endAt, startAt, status: listing.status })}
           </p>
         </div>
       </div>
@@ -166,7 +138,7 @@ export function ListingDetailsView({
             >
               <Image
                 key={selectedImage?.id ?? "fallback"}
-                alt={title}
+                alt={listing.title}
                 className="object-cover"
                 data-testid="listing-main-image"
                 fill
@@ -200,14 +172,14 @@ export function ListingDetailsView({
                       onClick={() => setSelectedImage(index)}
                     >
                       <Image
-                        alt={`${title} thumbnail ${index + 1}`}
+                        alt={`${listing.title} thumbnail ${index + 1}`}
                         className="object-cover transition duration-300 group-hover:scale-[1.03]"
                         fill
                         sizes="20vw"
                         src={image.url}
                       />
                       <span className="sr-only">
-                        View image {index + 1} for {title}
+                        View image {index + 1} for {listing.title}
                       </span>
                     </button>
 
@@ -280,7 +252,7 @@ export function ListingDetailsView({
                   Seller
                 </p>
                 <p className="mt-2 text-base font-medium text-foreground">
-                  {sellerName}
+                  {listing.sellerName}
                 </p>
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/50 p-4">
@@ -288,7 +260,7 @@ export function ListingDetailsView({
                   Location
                 </p>
                 <p className="mt-2 text-base font-medium text-foreground">
-                  {location ?? "Location pending"}
+                  {listing.location ?? "Location pending"}
                 </p>
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/50 p-4">
@@ -296,7 +268,7 @@ export function ListingDetailsView({
                   Category
                 </p>
                 <p className="mt-2 text-base font-medium text-foreground">
-                  {formatListingCategory(category)}
+                  {formatListingCategory(listing.category)}
                 </p>
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/50 p-4">
@@ -304,7 +276,7 @@ export function ListingDetailsView({
                   Condition
                 </p>
                 <p className="mt-2 text-base font-medium text-foreground">
-                  {formatListingCondition(condition)}
+                  {formatListingCondition(listing.condition)}
                 </p>
               </div>
             </div>
@@ -314,7 +286,7 @@ export function ListingDetailsView({
                 Description
               </p>
               <p className="mt-3 whitespace-pre-line leading-7 text-muted-foreground">
-                {description}
+                {listing.description}
               </p>
             </div>
           </CardContent>
@@ -332,25 +304,12 @@ export function ListingDetailsView({
             </CardHeader>
             <CardContent className="space-y-4 px-6 pb-6 pt-0">
               {isOwner ? (
-                <ListingSellerControls
-                  bidCount={bidCount}
-                  category={category}
-                  condition={condition}
-                  description={description}
-                  endAt={endAt}
-                  id={id}
-                  location={location}
-                  reservePrice={reservePrice}
-                  startAt={startAt}
-                  startingBid={startingBid}
-                  status={status}
-                  title={title}
-                />
+                <ListingSellerControls listing={listing} />
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground">
-                    This listing belongs to {sellerName}. Phase 3 will replace
-                    this placeholder with live bid entry, current bid
+                    This listing belongs to {listing.sellerName}. Phase 3 will
+                    replace this placeholder with live bid entry, current bid
                     validation, and real-time updates.
                   </p>
                   <div className="rounded-2xl border border-dashed border-border/70 bg-background/50 p-4">

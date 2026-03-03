@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
-import type { ListingStatus } from "@/lib/db/schema";
 import {
   type AddListingImageInput,
   addListingImageSchema,
@@ -30,6 +29,14 @@ import {
   updateListingDraftData,
   updateListingStatusData,
 } from "@/server/data/listings";
+import { mapOwnedListingForEditDto } from "@/server/mappers/listings";
+import type {
+  AddListingImageResultDto,
+  CreateDraftListingResultDto,
+  MutationSuccessDto,
+  OwnedListingForEditDto,
+  PublishListingResultDto,
+} from "@/types/listings";
 
 const buildPlaceholderDraft = () => {
   return {
@@ -50,7 +57,7 @@ const resolveStartingBid = (startingBid: number | null | undefined) => {
 
 export const createDraftListingAction = async (
   input: CreateDraftListingInput,
-) => {
+): Promise<CreateDraftListingResultDto> => {
   const session = await requireCurrentUserSession();
   const parsed = createDraftListingSchema.safeParse(input);
 
@@ -87,14 +94,16 @@ export const createDraftListingAction = async (
 };
 
 const getOwnedListing = async (listingId: string, sellerId: string) => {
-  return getOwnedListingWithImagesData(listingId, sellerId);
+  const listing = await getOwnedListingWithImagesData(listingId, sellerId);
+
+  if (!listing) {
+    return null;
+  }
+
+  return mapOwnedListingForEditDto(listing);
 };
 
-const assertListingCanBeEdited = (listing: {
-  bidCount: number;
-  endAt: Date | null;
-  status: ListingStatus;
-}) => {
+const assertListingCanBeEdited = (listing: OwnedListingForEditDto) => {
   if (listing.bidCount > 0) {
     throw new Error("Listings with bids can no longer be edited.");
   }
@@ -108,13 +117,13 @@ const assertListingCanBeEdited = (listing: {
   }
 };
 
-const assertListingCanManageImages = (listing: { status: ListingStatus }) => {
+const assertListingCanManageImages = (listing: OwnedListingForEditDto) => {
   if (listing.status !== "Draft") {
     throw new Error("Images can only be managed while listing is in draft.");
   }
 };
 
-const assertListingCanSetMainImage = (listing: { status: ListingStatus }) => {
+const assertListingCanSetMainImage = (listing: OwnedListingForEditDto) => {
   if (
     listing.status !== "Draft" &&
     listing.status !== "Active" &&
@@ -132,7 +141,9 @@ const revalidateListingPaths = (listingId: string) => {
   revalidatePath(`/listings/${listingId}`);
 };
 
-export const addListingImageAction = async (input: AddListingImageInput) => {
+export const addListingImageAction = async (
+  input: AddListingImageInput,
+): Promise<AddListingImageResultDto> => {
   const session = await requireCurrentUserSession();
   const parsed = addListingImageSchema.safeParse(input);
 
@@ -178,7 +189,7 @@ export const addListingImageAction = async (input: AddListingImageInput) => {
 
 export const deleteListingImageAction = async (
   input: DeleteListingImageInput,
-) => {
+): Promise<MutationSuccessDto> => {
   const session = await requireCurrentUserSession();
   const parsed = deleteListingImageSchema.safeParse(input);
 
@@ -223,7 +234,7 @@ export const deleteListingImageAction = async (
 
 export const setMainListingImageAction = async (
   input: SetMainListingImageInput,
-) => {
+): Promise<MutationSuccessDto> => {
   const session = await requireCurrentUserSession();
   const parsed = setMainListingImageSchema.safeParse(input);
 
@@ -261,7 +272,7 @@ export const setMainListingImageAction = async (
 export const updateListingDraftAction = async (
   listingId: string,
   input: UpdateListingDraftInput | UpdateListingDraftValues,
-) => {
+): Promise<MutationSuccessDto> => {
   const session = await requireCurrentUserSession();
   const listing = await getOwnedListing(listingId, session.user.id);
 
@@ -295,7 +306,9 @@ export const updateListingDraftAction = async (
   return { success: true as const };
 };
 
-export const publishListingAction = async (listingId: string) => {
+export const publishListingAction = async (
+  listingId: string,
+): Promise<PublishListingResultDto> => {
   const session = await requireCurrentUserSession();
   const listing = await getOwnedListing(listingId, session.user.id);
 
@@ -321,7 +334,9 @@ export const publishListingAction = async (listingId: string) => {
   };
 };
 
-export const returnListingToDraftAction = async (listingId: string) => {
+export const returnListingToDraftAction = async (
+  listingId: string,
+): Promise<MutationSuccessDto> => {
   const session = await requireCurrentUserSession();
   const listing = await getOwnedListing(listingId, session.user.id);
 
@@ -344,7 +359,9 @@ export const returnListingToDraftAction = async (listingId: string) => {
   return { success: true as const };
 };
 
-export const deleteListingAction = async (listingId: string) => {
+export const deleteListingAction = async (
+  listingId: string,
+): Promise<MutationSuccessDto> => {
   const session = await requireCurrentUserSession();
   const listing = await getOwnedListing(listingId, session.user.id);
 

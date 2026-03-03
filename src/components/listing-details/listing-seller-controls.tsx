@@ -8,11 +8,6 @@ import { useForm } from "react-hook-form";
 import { ListingActionAlertDialog } from "@/components/listing-details/listing-action-alert-dialog";
 import { RefineListingDialog } from "@/components/listing-details/refine-listing-dialog";
 import { Button } from "@/components/ui/button";
-import type {
-  ListingCategory,
-  ListingCondition,
-  ListingStatus,
-} from "@/lib/db/schema";
 import { formatDateTimeInput, formatMoneyInput } from "@/lib/utils";
 import type {
   UpdateListingDraftInput,
@@ -25,65 +20,44 @@ import {
   returnListingToDraftAction,
   updateListingDraftAction,
 } from "@/server/actions/listings";
+import type { ListingDetailsDto } from "@/types/listings";
 
 type ListingSellerControlsProps = {
-  bidCount: number;
-  category: ListingCategory;
-  condition: ListingCondition;
-  description: string;
-  endAt: Date | null;
-  id: string;
-  location: string | null;
-  startAt: Date | null;
-  startingBid: number | null;
-  reservePrice: number | null;
-  status: ListingStatus;
-  title: string;
+  listing: ListingDetailsDto;
 };
 
-export function ListingSellerControls({
-  bidCount,
-  category,
-  condition,
-  description,
-  endAt,
-  id,
-  location,
-  reservePrice,
-  startAt,
-  startingBid,
-  status,
-  title,
-}: ListingSellerControlsProps) {
+export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isOpeningEdit, setIsOpeningEdit] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const startAt = listing.startAt ? new Date(listing.startAt) : null;
+  const endAt = listing.endAt ? new Date(listing.endAt) : null;
 
   const defaultValues = useMemo<UpdateListingDraftInput>(
     () => ({
-      category,
-      condition,
-      description,
+      category: listing.category,
+      condition: listing.condition,
+      description: listing.description,
       endAt: formatDateTimeInput(endAt),
-      location: location ?? "",
-      reservePrice: formatMoneyInput(reservePrice),
+      location: listing.location ?? "",
+      reservePrice: formatMoneyInput(listing.reservePrice),
       startAt: formatDateTimeInput(startAt),
-      startingBid: formatMoneyInput(startingBid),
-      title,
+      startingBid: formatMoneyInput(listing.startingBid),
+      title: listing.title,
     }),
     [
-      category,
-      condition,
-      description,
       endAt,
-      location,
-      reservePrice,
+      listing.category,
+      listing.condition,
+      listing.description,
+      listing.location,
+      listing.reservePrice,
+      listing.startingBid,
+      listing.title,
       startAt,
-      startingBid,
-      title,
     ],
   );
 
@@ -121,7 +95,7 @@ export function ListingSellerControls({
     resetFeedback();
 
     try {
-      await updateListingDraftAction(id, values);
+      await updateListingDraftAction(listing.id, values);
       setDialogOpen(false);
       setSubmitSuccess("Draft saved.");
       router.refresh();
@@ -136,7 +110,7 @@ export function ListingSellerControls({
     resetFeedback();
     startTransition(async () => {
       try {
-        await publishListingAction(id);
+        await publishListingAction(listing.id);
         setDialogOpen(false);
         router.refresh();
       } catch (error) {
@@ -151,7 +125,7 @@ export function ListingSellerControls({
     resetFeedback();
     startTransition(async () => {
       try {
-        await returnListingToDraftAction(id);
+        await returnListingToDraftAction(listing.id);
         router.refresh();
       } catch (error) {
         setSubmitError(
@@ -167,7 +141,7 @@ export function ListingSellerControls({
     resetFeedback();
     startTransition(async () => {
       try {
-        await deleteListingAction(id);
+        await deleteListingAction(listing.id);
         router.push("/my-listings");
         router.refresh();
       } catch (error) {
@@ -178,14 +152,14 @@ export function ListingSellerControls({
     });
   };
 
-  const isDraft = status === "Draft";
-  const isActive = status === "Active";
-  const isScheduled = status === "Scheduled";
+  const isDraft = listing.status === "Draft";
+  const isActive = listing.status === "Active";
+  const isScheduled = listing.status === "Scheduled";
   const canRefine = isDraft;
   const canPublish = isDraft;
   const canDelete = isDraft;
   const canReturnToDraft = isActive || isScheduled;
-  const editingLocked = bidCount > 0 || status === "Ended";
+  const editingLocked = listing.bidCount > 0 || listing.status === "Ended";
   const publishLabel =
     startAt && startAt.getTime() > Date.now()
       ? "Publish as scheduled"

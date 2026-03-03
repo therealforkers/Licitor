@@ -36,16 +36,9 @@ export default async function ListingsPage() {
           {listingRows.map((listing, index) => (
             <ListingCard
               key={listing.id}
-              bidCount={listing.bidCount}
-              currentBid={listing.currentBid}
-              endAt={listing.endAt}
               href={`/listings/${listing.id}`}
-              imageUrl={listing.images[0]?.url ?? null}
+              listing={listing}
               priority={index < 3}
-              sellerName={listing.seller.name}
-              startAt={listing.startAt}
-              status={listing.status}
-              title={listing.title}
             />
           ))}
         </div>

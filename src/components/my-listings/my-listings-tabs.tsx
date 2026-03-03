@@ -7,17 +7,7 @@ import { EmptyStateCard } from "@/components/shared/empty-state-card";
 import { ListingCard } from "@/components/shared/listing-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ListingStatus } from "@/lib/db/schema";
-
-type MyListingRecord = {
-  id: string;
-  bidCount: number;
-  currentBid: number | null;
-  endAt: string | null;
-  imageUrl: string | null;
-  sellerName: string;
-  startAt: string | null;
-  title: string;
-};
+import type { ListingSummaryDto } from "@/types/listings";
 
 const tabConfig = [
   { label: "Drafts", value: "Draft" },
@@ -31,7 +21,7 @@ const tabConfig = [
 
 type MyListingsTabsProps = {
   initialStatus?: ListingStatus;
-  listings: MyListingRecord[];
+  listings: ListingSummaryDto[];
 };
 
 export function MyListingsTabs({
@@ -91,16 +81,9 @@ export function MyListingsTabs({
           {listings.map((listing, index) => (
             <ListingCard
               key={listing.id}
-              bidCount={listing.bidCount}
-              currentBid={listing.currentBid}
-              endAt={listing.endAt ? new Date(listing.endAt) : null}
               href={`/listings/${listing.id}`}
-              imageUrl={listing.imageUrl}
+              listing={listing}
               priority={index < 3}
-              sellerName={listing.sellerName}
-              startAt={listing.startAt ? new Date(listing.startAt) : null}
-              status={selectedStatus}
-              title={listing.title}
             />
           ))}
         </div>

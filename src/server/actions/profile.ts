@@ -9,6 +9,8 @@ import {
   getProfileByUserIdData,
   updateProfileByUserIdData,
 } from "@/server/data/profiles";
+import { mapProfileDto } from "@/server/mappers/profile";
+import type { ProfileDto, UpdateProfileResultDto } from "@/types/profile";
 
 const toNullable = (value?: string) => {
   const trimmed = value?.trim();
@@ -18,7 +20,7 @@ const toNullable = (value?: string) => {
 export const updateProfileByUserId = async (
   userId: string | null,
   input: ProfileUpdateInput,
-) => {
+): Promise<ProfileDto> => {
   if (!userId) {
     throw new Error("Unauthorized.");
   }
@@ -47,10 +49,12 @@ export const updateProfileByUserId = async (
     throw new Error("Profile not found.");
   }
 
-  return updatedProfile;
+  return mapProfileDto(updatedProfile);
 };
 
-export const updateProfileAction = async (input: ProfileUpdateInput) => {
+export const updateProfileAction = async (
+  input: ProfileUpdateInput,
+): Promise<UpdateProfileResultDto> => {
   const session = await getCurrentSession();
 
   const updatedProfile = await updateProfileByUserId(
@@ -59,7 +63,7 @@ export const updateProfileAction = async (input: ProfileUpdateInput) => {
   );
 
   return {
-    success: true,
+    success: true as const,
     profile: updatedProfile,
   };
 };

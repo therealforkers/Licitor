@@ -29,28 +29,5 @@ export default async function ListingDetailsPage({
     notFound();
   }
 
-  return (
-    <ListingDetailsView
-      bidCount={listing.bidCount}
-      category={listing.category}
-      condition={listing.condition}
-      currentBid={listing.currentBid}
-      description={listing.description}
-      endAt={listing.endAt}
-      id={listing.id}
-      images={listing.images.map((image) => ({
-        id: image.id,
-        isMain: image.isMain,
-        url: image.url,
-      }))}
-      isOwner={isOwner}
-      location={listing.location}
-      reservePrice={listing.reservePrice}
-      sellerName={listing.seller.name}
-      startAt={listing.startAt}
-      startingBid={listing.startingBid}
-      status={listing.status}
-      title={listing.title}
-    />
-  );
+  return <ListingDetailsView isOwner={isOwner} listing={listing} />;
 }

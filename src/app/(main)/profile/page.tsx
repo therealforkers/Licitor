@@ -62,14 +62,11 @@ export default async function ProfilePage() {
           <CardSectionHeader title="Edit Details" />
           <CardContent>
             <ProfileForm
-              profile={{
-                name: profile.name,
-                image: profile.image,
-                bio: profile.bio,
-                location: profile.location,
+              profile={profile}
+              sessionUser={{
+                name: session.user.name,
+                image: session.user.image ?? null,
               }}
-              sessionName={session.user.name}
-              sessionImage={session.user.image ?? null}
             />
           </CardContent>
         </Card>

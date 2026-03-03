@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { ListingStatus } from "@/lib/db/schema";
 import {
   formatBidCount,
   formatListingCurrency,
@@ -11,34 +10,24 @@ import {
   getListingTimeLabel,
 } from "@/lib/listings";
 import { cn } from "@/lib/utils";
+import type { ListingSummaryDto } from "@/types/listings";
 
 type ListingCardProps = {
-  bidCount: number;
-  currentBid: number | null;
-  endAt: Date | null;
   href: string;
-  imageUrl: string | null;
+  listing: ListingSummaryDto;
   priority?: boolean;
-  sellerName: string;
-  startAt: Date | null;
-  status: ListingStatus;
-  title: string;
 };
 
 const fallbackImage = "https://picsum.photos/id/1/1200/900";
 
 export function ListingCard({
-  bidCount,
-  currentBid,
-  endAt,
   href,
-  imageUrl,
+  listing,
   priority = false,
-  sellerName,
-  startAt,
-  status,
-  title,
 }: ListingCardProps) {
+  const startAt = listing.startAt ? new Date(listing.startAt) : null;
+  const endAt = listing.endAt ? new Date(listing.endAt) : null;
+
   return (
     <Link
       href={href}
@@ -47,8 +36,8 @@ export function ListingCard({
       <Card className="gap-0 overflow-hidden border-border/70 bg-card/90 py-0 shadow-sm transition-transform duration-200 hover:-translate-y-1">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={imageUrl ?? fallbackImage}
-            alt={title}
+            src={listing.imageUrl ?? fallbackImage}
+            alt={listing.title}
             fill
             priority={priority}
             loading={priority ? "eager" : "lazy"}
@@ -60,13 +49,17 @@ export function ListingCard({
               variant="outline"
               className={cn(
                 "border px-3 py-1 text-[0.7rem] uppercase tracking-[0.18em]",
-                getListingStatusTone(status),
+                getListingStatusTone(listing.status),
               )}
             >
-              {status}
+              {listing.status}
             </Badge>
             <div className="rounded-full bg-black/45 px-3 py-1 text-[0.7rem] font-medium tracking-[0.12em] text-white backdrop-blur-sm">
-              {getListingTimeLabel({ endAt, startAt, status })}
+              {getListingTimeLabel({
+                endAt,
+                startAt,
+                status: listing.status,
+              })}
             </div>
           </div>
         </div>
@@ -74,9 +67,11 @@ export function ListingCard({
         <CardContent className="space-y-4 p-5">
           <div className="space-y-2">
             <h2 className="truncate text-xl font-semibold text-foreground">
-              {title}
+              {listing.title}
             </h2>
-            <p className="text-sm text-muted-foreground">Seller {sellerName}</p>
+            <p className="text-sm text-muted-foreground">
+              Seller {listing.sellerName}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
@@ -85,7 +80,7 @@ export function ListingCard({
                 Current price
               </p>
               <p className="text-xl font-semibold text-primary">
-                {formatListingCurrency(currentBid ?? 0)}
+                {formatListingCurrency(listing.currentBid ?? 0)}
               </p>
             </div>
             <div className="space-y-1 text-right">
@@ -93,7 +88,7 @@ export function ListingCard({
                 Activity
               </p>
               <p className="text-base font-medium text-foreground">
-                {formatBidCount(bidCount)}
+                {formatBidCount(listing.bidCount)}
               </p>
             </div>
           </div>

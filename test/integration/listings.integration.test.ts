@@ -293,7 +293,7 @@ describe("getListingById integration", () => {
     const result = await getListingById("LST-DETAILS");
 
     expect(result).not.toBeNull();
-    expect(result?.seller.name).toBe("Detail Seller");
+    expect(result?.sellerName).toBe("Detail Seller");
     expect(result?.images.map((image) => image.id)).toEqual([
       "LST-DETAILS-IMG-1",
       "LST-DETAILS-IMG-2",

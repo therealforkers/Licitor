@@ -9,24 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import type { Profile } from "@/lib/db/schema";
 import {
   type ProfileUpdateInput,
   profileUpdateSchema,
 } from "@/lib/validators/profile";
 import { updateProfileAction } from "@/server/actions/profile";
+import type { ProfileDto } from "@/types/profile";
 
 type ProfileFormProps = {
-  profile: Pick<Profile, "name" | "image" | "bio" | "location">;
-  sessionName: string;
-  sessionImage: string | null;
+  profile: ProfileDto;
+  sessionUser: {
+    image: string | null;
+    name: string;
+  };
 };
 
-export function ProfileForm({
-  profile,
-  sessionName,
-  sessionImage,
-}: ProfileFormProps) {
+export function ProfileForm({ profile, sessionUser }: ProfileFormProps) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
@@ -61,7 +59,7 @@ export function ProfileForm({
       const nextName = values.name.trim();
       const nextImage = values.image?.trim() ? values.image.trim() : null;
 
-      if (nextName !== sessionName || nextImage !== sessionImage) {
+      if (nextName !== sessionUser.name || nextImage !== sessionUser.image) {
         await authClient.updateUser({
           name: nextName,
           image: nextImage ?? undefined,
