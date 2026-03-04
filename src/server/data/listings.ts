@@ -1,18 +1,65 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, type SQL, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import type { ListingStatus } from "@/lib/db/schema";
 import { listingImages, listings } from "@/lib/db/schema";
+import type { ListingSortOption } from "@/lib/listing-browse";
 import type { UpdateListingDraftValues } from "@/lib/validators/listings";
 
 export type PublicListingStatus = Exclude<ListingStatus, "Draft">;
 
-export const getPublicListingsData = async (status?: PublicListingStatus) => {
+type GetPublicListingsDataOptions = {
+  category?: (typeof listings.$inferSelect)["category"];
+  condition?: (typeof listings.$inferSelect)["condition"];
+  priceCeilingCents?: number;
+  searchQuery?: string;
+  sort?: ListingSortOption;
+  status?: PublicListingStatus;
+};
+
+export const getPublicListingsData = async (
+  options: GetPublicListingsDataOptions = {},
+) => {
   return db.query.listings.findMany({
-    where: (listing, { and, eq, ne }) =>
-      status
-        ? and(ne(listing.status, "Draft"), eq(listing.status, status))
-        : ne(listing.status, "Draft"),
+    where: (listing, { and, eq, like, ne, or }) => {
+      let whereClause = ne(listing.status, "Draft");
+      const appendFilter = (nextFilter: SQL) => {
+        const merged = and(whereClause, nextFilter);
+        whereClause = merged ?? whereClause;
+      };
+
+      if (options.status) {
+        appendFilter(eq(listing.status, options.status));
+      }
+
+      if (options.category) {
+        appendFilter(eq(listing.category, options.category));
+      }
+
+      if (options.condition) {
+        appendFilter(eq(listing.condition, options.condition));
+      }
+
+      if (options.priceCeilingCents !== undefined) {
+        appendFilter(
+          sql`coalesce(${listing.currentBid}, 0) < ${options.priceCeilingCents}`,
+        );
+      }
+
+      if (options.searchQuery) {
+        const wildcard = `%${options.searchQuery}%`;
+        const searchClause = or(
+          like(listing.title, wildcard),
+          like(listing.description, wildcard),
+        );
+
+        if (searchClause) {
+          appendFilter(searchClause);
+        }
+      }
+
+      return whereClause;
+    },
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),
@@ -20,7 +67,29 @@ export const getPublicListingsData = async (status?: PublicListingStatus) => {
       },
       seller: true,
     },
-    orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+    orderBy: (listing, { asc, desc }) => {
+      switch (options.sort) {
+        case "ending-soonest":
+          return [
+            asc(sql<number>`coalesce(${listing.endAt}, 253402300799000)`),
+            desc(listing.createdAt),
+          ];
+        case "most-bids":
+          return [desc(listing.bidCount), desc(listing.createdAt)];
+        case "price-low-high":
+          return [
+            asc(sql<number>`coalesce(${listing.currentBid}, 0)`),
+            desc(listing.createdAt),
+          ];
+        case "price-high-low":
+          return [
+            desc(sql<number>`coalesce(${listing.currentBid}, 0)`),
+            desc(listing.createdAt),
+          ];
+        default:
+          return [desc(listing.createdAt)];
+      }
+    },
   });
 };
 

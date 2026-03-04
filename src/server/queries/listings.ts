@@ -1,4 +1,13 @@
-import type { ListingStatus } from "@/lib/db/schema";
+import type {
+  ListingCategory,
+  ListingCondition,
+  ListingStatus,
+} from "@/lib/db/schema";
+import type {
+  ListingPriceFilter,
+  ListingSortOption,
+} from "@/lib/listing-browse";
+import { getListingPriceCeilingCents } from "@/lib/listing-browse";
 import {
   getListingByIdData,
   getListingsBySellerIdData,
@@ -12,9 +21,23 @@ import {
 import type { ListingDetailsDto, ListingSummaryDto } from "@/types/listings";
 
 export const getPublicListings = async (
-  status?: PublicListingStatus,
+  options: {
+    category?: ListingCategory;
+    condition?: ListingCondition;
+    price?: ListingPriceFilter;
+    q?: string;
+    sort?: ListingSortOption;
+    status?: PublicListingStatus;
+  } = {},
 ): Promise<ListingSummaryDto[]> => {
-  const rows = await getPublicListingsData(status);
+  const rows = await getPublicListingsData({
+    category: options.category,
+    condition: options.condition,
+    priceCeilingCents: getListingPriceCeilingCents(options.price),
+    searchQuery: options.q,
+    sort: options.sort,
+    status: options.status,
+  });
 
   return rows.map(mapListingSummaryDto);
 };

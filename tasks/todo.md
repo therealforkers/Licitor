@@ -189,18 +189,18 @@ Acceptance Criteria:
 Goal: Deliver composable dropdown filters and sorting controls with removable state badges.
 
 Tasks:
-- [ ] Add Category, Condition, Price, and Sort dropdown controls on the right side of the listings filter row.
-- [ ] Implement price filter options: less than `$10`, `$50`, `$100`, `$500`.
-- [ ] Implement sort options: `Newest`, `Ending Soonest`, `Most Bids`, `Price Low->High`, `Price High->Low`.
-- [ ] Show selected filters/sort as removable badges above the filter row.
-- [ ] Add Reset button that clears all filter/sort selections.
-- [ ] Ensure filters and sort combine with search and status tabs.
-- [ ] Persist selected filter/sort state in URL query params.
+- [x] Add Category, Condition, Price, and Sort dropdown controls on the right side of the listings filter row.
+- [x] Implement price filter options: less than `$10`, `$50`, `$100`, `$500`.
+- [x] Implement sort options: `Newest`, `Ending Soonest`, `Most Bids`, `Price Low->High`, `Price High->Low`.
+- [x] Show selected filters/sort as removable badges above the filter row.
+- [x] Add Reset button that clears all filter/sort selections.
+- [x] Ensure filters and sort combine with search and status tabs.
+- [x] Persist selected filter/sort state in URL query params.
 
 Acceptance Criteria:
-- [ ] Selecting `Electronics` + `Under $100` + `Price Low->High` returns correctly filtered and sorted listings.
-- [ ] Selected filters/sort are visible as badges and can be removed.
-- [ ] Reset clears all active filters and sort selections.
+- [x] Selecting `Electronics` + `Under $100` + `Price Low->High` returns correctly filtered and sorted listings.
+- [x] Selected filters/sort are visible as badges and can be removed.
+- [x] Reset clears all active filters and sort selections.
 
 ### Sub-Phase 2C: Search
 Goal: Deliver explicit-submit navbar search that works in-place on `/listings` and redirects from other routes.

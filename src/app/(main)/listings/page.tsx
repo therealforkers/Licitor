@@ -1,13 +1,23 @@
 import { PublicListingsTabs } from "@/components/listings/public-listings-tabs";
 import { PageHeader } from "@/components/shared/page-header";
-import type { ListingStatus } from "@/lib/db/schema";
+import {
+  parseListingCategoryFilter,
+  parseListingConditionFilter,
+  parseListingPriceFilter,
+  parseListingSearchTerm,
+  parseListingSortOption,
+  parsePublicBrowseStatus,
+} from "@/lib/listing-browse";
 import { getPublicListings } from "@/server/queries/listings";
-
-const validStatuses = new Set<ListingStatus>(["Active", "Scheduled", "Ended"]);
 
 type ListingsPageProps = {
   searchParams?: Promise<{
-    status?: string;
+    category?: string | string[];
+    condition?: string | string[];
+    price?: string | string[];
+    q?: string | string[];
+    sort?: string | string[];
+    status?: string | string[];
   }>;
 };
 
@@ -15,13 +25,16 @@ export default async function ListingsPage({
   searchParams,
 }: ListingsPageProps) {
   const resolvedSearchParams = await searchParams;
-  const activeStatus = validStatuses.has(
-    resolvedSearchParams?.status as ListingStatus,
-  )
-    ? (resolvedSearchParams?.status as Exclude<ListingStatus, "Draft">)
-    : "Active";
+  const browseState = {
+    category: parseListingCategoryFilter(resolvedSearchParams?.category),
+    condition: parseListingConditionFilter(resolvedSearchParams?.condition),
+    price: parseListingPriceFilter(resolvedSearchParams?.price),
+    q: parseListingSearchTerm(resolvedSearchParams?.q),
+    sort: parseListingSortOption(resolvedSearchParams?.sort),
+    status: parsePublicBrowseStatus(resolvedSearchParams?.status),
+  };
 
-  const listingRows = await getPublicListings(activeStatus);
+  const listingRows = await getPublicListings(browseState);
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
@@ -31,7 +44,7 @@ export default async function ListingsPage({
         description="Explore the seeded marketplace inventory, from active bidding wars to scheduled launches waiting for their opening bid."
       />
 
-      <PublicListingsTabs initialStatus={activeStatus} listings={listingRows} />
+      <PublicListingsTabs initialState={browseState} listings={listingRows} />
     </section>
   );
 }

@@ -86,9 +86,9 @@ describe("getPublicListings integration", () => {
       updatedAt: new Date("2026-02-05T00:00:00.000Z"),
     });
 
-    const scheduled = await getPublicListings("Scheduled");
-    const active = await getPublicListings("Active");
-    const ended = await getPublicListings("Ended");
+    const scheduled = await getPublicListings({ status: "Scheduled" });
+    const active = await getPublicListings({ status: "Active" });
+    const ended = await getPublicListings({ status: "Ended" });
 
     expect(scheduled.map((listing) => listing.id)).toEqual([
       "LST-PUBLIC-SCHEDULED",
@@ -100,6 +100,86 @@ describe("getPublicListings integration", () => {
   it("starts each test with a clean listing state via transaction rollback", async () => {
     const result = await db.select().from(listings);
     expect(result).toHaveLength(0);
+  });
+
+  it("combines category and price filters with low-high price sorting", async () => {
+    await createListingFixture({
+      id: "LST-ELECTRONICS-LOW",
+      category: "Electronics",
+      currentBid: 8_500,
+      status: "Active",
+      title: "Electronics low",
+    });
+    await createListingFixture({
+      id: "LST-ELECTRONICS-HIGH",
+      category: "Electronics",
+      currentBid: 9_500,
+      status: "Active",
+      title: "Electronics high",
+    });
+    await createListingFixture({
+      id: "LST-ELECTRONICS-TOO-HIGH",
+      category: "Electronics",
+      currentBid: 12_500,
+      status: "Active",
+      title: "Electronics too high",
+    });
+    await createListingFixture({
+      id: "LST-FASHION-LOW",
+      category: "Fashion",
+      currentBid: 7_500,
+      status: "Active",
+      title: "Fashion low",
+    });
+
+    const result = await getPublicListings({
+      category: "Electronics",
+      price: "100",
+      sort: "price-low-high",
+      status: "Active",
+    });
+
+    expect(result.map((listing) => listing.id)).toEqual([
+      "LST-ELECTRONICS-LOW",
+      "LST-ELECTRONICS-HIGH",
+    ]);
+  });
+
+  it("applies title and description search to public listings", async () => {
+    await createListingFixture({
+      id: "LST-SEARCH-TITLE",
+      status: "Scheduled",
+      title: "Vintage camera rig",
+      description: "Collector condition body with accessories",
+      createdAt: new Date("2026-03-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-03-01T00:00:00.000Z"),
+    });
+    await createListingFixture({
+      id: "LST-SEARCH-DESCRIPTION",
+      status: "Scheduled",
+      title: "Studio bundle",
+      description: "Includes a backup camera and tripod",
+      createdAt: new Date("2026-03-02T00:00:00.000Z"),
+      updatedAt: new Date("2026-03-02T00:00:00.000Z"),
+    });
+    await createListingFixture({
+      id: "LST-SEARCH-MISS",
+      status: "Scheduled",
+      title: "Office chair",
+      description: "Ergonomic seat",
+      createdAt: new Date("2026-03-03T00:00:00.000Z"),
+      updatedAt: new Date("2026-03-03T00:00:00.000Z"),
+    });
+
+    const result = await getPublicListings({
+      q: "camera",
+      status: "Scheduled",
+    });
+
+    expect(result.map((listing) => listing.id)).toEqual([
+      "LST-SEARCH-DESCRIPTION",
+      "LST-SEARCH-TITLE",
+    ]);
   });
 });
 
