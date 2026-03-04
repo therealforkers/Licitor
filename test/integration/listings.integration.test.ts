@@ -60,6 +60,43 @@ describe("getPublicListings integration", () => {
     expect(result).toEqual([]);
   });
 
+  it("can filter public listings by status", async () => {
+    await createListingFixture({
+      id: "LST-PUBLIC-ACTIVE",
+      status: "Active",
+      createdAt: new Date("2026-02-02T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-02T00:00:00.000Z"),
+    });
+    await createListingFixture({
+      id: "LST-PUBLIC-SCHEDULED",
+      status: "Scheduled",
+      createdAt: new Date("2026-02-03T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-03T00:00:00.000Z"),
+    });
+    await createListingFixture({
+      id: "LST-PUBLIC-ENDED",
+      status: "Ended",
+      createdAt: new Date("2026-02-04T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-04T00:00:00.000Z"),
+    });
+    await createListingFixture({
+      id: "LST-PUBLIC-DRAFT",
+      status: "Draft",
+      createdAt: new Date("2026-02-05T00:00:00.000Z"),
+      updatedAt: new Date("2026-02-05T00:00:00.000Z"),
+    });
+
+    const scheduled = await getPublicListings("Scheduled");
+    const active = await getPublicListings("Active");
+    const ended = await getPublicListings("Ended");
+
+    expect(scheduled.map((listing) => listing.id)).toEqual([
+      "LST-PUBLIC-SCHEDULED",
+    ]);
+    expect(active.map((listing) => listing.id)).toEqual(["LST-PUBLIC-ACTIVE"]);
+    expect(ended.map((listing) => listing.id)).toEqual(["LST-PUBLIC-ENDED"]);
+  });
+
   it("starts each test with a clean listing state via transaction rollback", async () => {
     const result = await db.select().from(listings);
     expect(result).toHaveLength(0);

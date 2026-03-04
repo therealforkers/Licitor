@@ -166,16 +166,76 @@ Acceptance Criteria:
 - [x] Draft listings remain hidden from public browse.
 
 ## Phase 2 - Browse and Search Listings
-Status: Not Started
-- [ ] Build listings browse page with pagination
-- [ ] Add query-layer filters (category, price, status, timing)
-- [ ] Add text search over title/description
-- [ ] Add sorting options (ending soon, highest bid, newest)
-- [ ] Persist filter/sort state via URL params
-- [ ] Optimize DB indexes for expected query patterns
-- [ ] Add unit tests for filter-parser/query-builder logic
-- [ ] Add integration tests for filter/sort/pagination combinations
-- [ ] Acceptance check: browse/search UX and correctness approved
+Status: In Progress
+
+### Sub-Phase 2A: Seed Data and Status tabs
+Goal: Deliver realistic browse seed data and status-tab filtering on `/listings`.
+
+Tasks:
+- [x] Create 20 seeded listings distributed across 3 seeded users.
+- [x] Ensure category and condition variety across seeded listings.
+- [x] Include at least 2 future-scheduled listings and at least 1 past-ended listing.
+- [x] Assign `https://picsum.photos/` image URLs to each listing.
+- [x] Add ShadCN tabs (`Active`, `Scheduled`, `Ended`) below the `/listings` page heading.
+- [x] Implement status filtering logic so each tab shows only matching listings.
+
+Acceptance Criteria:
+- [x] SQLite database contains 20 listings with image URLs.
+- [x] `/listings` shows seeded listings and images load correctly.
+- [x] `Active`, `Scheduled`, and `Ended` tabs each display only listings in that status.
+- [x] Active tab selection is visually clear.
+
+### Sub-Phase 2B: Filter Dropdowns & Sort
+Goal: Deliver composable dropdown filters and sorting controls with removable state badges.
+
+Tasks:
+- [ ] Add Category, Condition, Price, and Sort dropdown controls on the right side of the listings filter row.
+- [ ] Implement price filter options: less than `$10`, `$50`, `$100`, `$500`.
+- [ ] Implement sort options: `Newest`, `Ending Soonest`, `Most Bids`, `Price Low->High`, `Price High->Low`.
+- [ ] Show selected filters/sort as removable badges above the filter row.
+- [ ] Add Reset button that clears all filter/sort selections.
+- [ ] Ensure filters and sort combine with search and status tabs.
+- [ ] Persist selected filter/sort state in URL query params.
+
+Acceptance Criteria:
+- [ ] Selecting `Electronics` + `Under $100` + `Price Low->High` returns correctly filtered and sorted listings.
+- [ ] Selected filters/sort are visible as badges and can be removed.
+- [ ] Reset clears all active filters and sort selections.
+
+### Sub-Phase 2C: Search
+Goal: Deliver explicit-submit navbar search that works in-place on `/listings` and redirects from other routes.
+
+Tasks:
+- [ ] Add centered, always-visible search input to navbar.
+- [ ] Add search trigger behavior for `Enter` and search button click only.
+- [ ] Implement title/description contains matching using simple like/contains query logic.
+- [ ] On `/listings`, apply search as an in-place filter combined with active status/filter/sort state.
+- [ ] From non-`/listings` routes, redirect to `/listings` with search state in URL query params.
+- [ ] Ensure clearing search restores full results set (subject to other active state).
+
+Acceptance Criteria:
+- [ ] Searching `electronics` from any route shows matching listings on `/listings`.
+- [ ] Search only runs on explicit submit (`Enter` or button), not while typing.
+- [ ] Clearing search returns to full browse results.
+
+### Sub-Phase 2D: Pagination
+Goal: Deliver a shared sticky-bottom pagination component reused by `/listings` and `/my-listings`.
+
+Tasks:
+- [ ] Build a reusable offset-based pagination component for current and future pages.
+- [ ] Apply the shared component to `/listings` and `/my-listings`.
+- [ ] Implement layout: result count on left, ShadCN pagination controls in center, page size buttons on right.
+- [ ] Add page size options `6`, `12`, `24`, `48`.
+- [ ] Make pagination sticky to the bottom of the page.
+- [ ] Ensure pagination respects active search, filters, and sort.
+- [ ] Reset to page 1 whenever search/filter/sort criteria change.
+- [ ] Persist page number and page size in URL query params.
+
+Acceptance Criteria:
+- [ ] Changing page size updates visible results correctly.
+- [ ] Page navigation works on `/listings` and `/my-listings`.
+- [ ] Applying a new filter resets results to page 1.
+- [ ] Result count text (for example `1-5 of 20`) is accurate.
 
 ## Phase 3 - Bidding and Real-Time Updates
 Status: Not Started

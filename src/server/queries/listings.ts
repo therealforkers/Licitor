@@ -3,6 +3,7 @@ import {
   getListingByIdData,
   getListingsBySellerIdData,
   getPublicListingsData,
+  type PublicListingStatus,
 } from "@/server/data/listings";
 import {
   mapListingDetailsDto,
@@ -10,8 +11,10 @@ import {
 } from "@/server/mappers/listings";
 import type { ListingDetailsDto, ListingSummaryDto } from "@/types/listings";
 
-export const getPublicListings = async (): Promise<ListingSummaryDto[]> => {
-  const rows = await getPublicListingsData();
+export const getPublicListings = async (
+  status?: PublicListingStatus,
+): Promise<ListingSummaryDto[]> => {
+  const rows = await getPublicListingsData(status);
 
   return rows.map(mapListingSummaryDto);
 };

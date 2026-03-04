@@ -5,9 +5,14 @@ import type { ListingStatus } from "@/lib/db/schema";
 import { listingImages, listings } from "@/lib/db/schema";
 import type { UpdateListingDraftValues } from "@/lib/validators/listings";
 
-export const getPublicListingsData = async () => {
+export type PublicListingStatus = Exclude<ListingStatus, "Draft">;
+
+export const getPublicListingsData = async (status?: PublicListingStatus) => {
   return db.query.listings.findMany({
-    where: (listing, { ne }) => ne(listing.status, "Draft"),
+    where: (listing, { and, eq, ne }) =>
+      status
+        ? and(ne(listing.status, "Draft"), eq(listing.status, status))
+        : ne(listing.status, "Draft"),
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),

@@ -1,13 +1,27 @@
-import Link from "next/link";
-
-import { EmptyStateCard } from "@/components/shared/empty-state-card";
-import { ListingCard } from "@/components/shared/listing-card";
+import { PublicListingsTabs } from "@/components/listings/public-listings-tabs";
 import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
+import type { ListingStatus } from "@/lib/db/schema";
 import { getPublicListings } from "@/server/queries/listings";
 
-export default async function ListingsPage() {
-  const listingRows = await getPublicListings();
+const validStatuses = new Set<ListingStatus>(["Active", "Scheduled", "Ended"]);
+
+type ListingsPageProps = {
+  searchParams?: Promise<{
+    status?: string;
+  }>;
+};
+
+export default async function ListingsPage({
+  searchParams,
+}: ListingsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const activeStatus = validStatuses.has(
+    resolvedSearchParams?.status as ListingStatus,
+  )
+    ? (resolvedSearchParams?.status as Exclude<ListingStatus, "Draft">)
+    : "Active";
+
+  const listingRows = await getPublicListings(activeStatus);
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
@@ -17,32 +31,7 @@ export default async function ListingsPage() {
         description="Explore the seeded marketplace inventory, from active bidding wars to scheduled launches waiting for their opening bid."
       />
 
-      {listingRows.length === 0 ? (
-        <EmptyStateCard
-          eyebrow="No public listings"
-          title="The marketplace is empty right now."
-          description="Draft listings stay private, so this state appears when nothing is active, scheduled, or already ended in the public dataset."
-          contentClassName="flex flex-col gap-4"
-          actions={
-            <div>
-              <Button asChild variant="outline">
-                <Link href="/">Return home</Link>
-              </Button>
-            </div>
-          }
-        />
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {listingRows.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              href={`/listings/${listing.id}`}
-              listing={listing}
-              priority={index < 3}
-            />
-          ))}
-        </div>
-      )}
+      <PublicListingsTabs initialStatus={activeStatus} listings={listingRows} />
     </section>
   );
 }

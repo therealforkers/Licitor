@@ -357,18 +357,84 @@ Approval note: Approved on 2026-03-03.
 
 ## Phase 2 - Browse and Search Listings
 ### Scope
-- Public browsing and filter/search over active listings.
+- Expand browse UX for `/listings` and `/my-listings` with realistic seeded inventory, status tabs, multi-filter + sort controls, navbar search, and shared offset-based pagination.
+- Ensure browse state is URL-driven (search/filter/sort/pagination) for shareable and restorable views.
 
-### Requirements
-- Listings index with pagination.
-- Filters: category, min/max price, ending soon, newly listed.
-- Text search on title/description (SQLite FTS if adopted, otherwise indexed LIKE with constraints).
-- Sorting: ending soon, highest bid, newest.
+### Seed Data Requirements
+- Seed 20 listings for UI testing.
+- Distribute listings across the 3 seeded users as sellers.
+- Include varied categories and conditions.
+- Include at least 2 listings with future `startAt` values (scheduled).
+- Include at least 1 listing with an `endAt` value in the past (ended).
+- Every listing must include at least one image URL sourced from an appropriate approximate image at `https://picsum.photos/`.
+
+### Search Requirements
+- Navbar includes a centered search input that remains visible across pages.
+- Search matches against listing `title` and `description` with simple contains/LIKE behavior.
+- Search executes only on `Enter` key or explicit search button click.
+- No debounce and no auto-search while typing.
+- Behavior by route:
+- On `/listings`, apply search as an in-place filter to the current result set and combine with active filters/sort/pagination.
+- From any other route, navigate to `/listings` with the search term applied.
+
+### Filters and Sorting Requirements (`/listings`)
+- Render one filter/sort row directly below the page heading.
+- Left side:
+- ShadCN tabs with statuses `Active`, `Scheduled`, `Ended`.
+- Right side dropdown controls:
+- Category filter
+- Condition filter
+- Price filter options:
+- less than `$10`
+- less than `$50`
+- less than `$100`
+- less than `$500`
+- Sort options:
+- `Newest`
+- `Ending Soonest`
+- `Most Bids`
+- `Price Low->High`
+- `Price High->Low`
+- Reset button clears all active filters and sort selections.
+- Filters and sort must compose with status tabs and search.
+- Selected filters/sort are displayed as removable badges above the filter row.
+
+### Pagination Requirements
+- Build one shared, reusable pagination component for `/listings`, `/my-listings`, and future pages.
+- Pagination strategy is offset-based.
+- Component is sticky to the bottom of the page.
+- Layout:
+- Left: result count text in the format `"1-5 of 20"`.
+- Center: ShadCN pagination controls.
+- Right: page size selector with 4 options: `6`, `12`, `24`, `48`.
+- Pagination must respect all active search/filter/sort criteria.
+- Applying/changing filters resets pagination to page 1.
+
+### URL State Requirements
+- Persist search, status tab, dropdown filters, sort option, page number, and page size in URL query params.
+- Query params are the single source of truth for list state on `/listings`.
+- Search from non-listing routes must redirect to `/listings` with query params pre-populated.
 
 ### Acceptance
-- Query logic returns correct filtered/sorted datasets.
-- UI keeps filter state in URL query params.
-- Tests cover query composition and pagination edge cases.
+- Seed/data acceptance:
+- Database shows 20 listings with image URLs and required status/date distribution.
+- Listings acceptance:
+- `/listings` displays seeded items with images loading correctly.
+- Status tabs show only matching listing states and visibly indicate active tab.
+- Filter/sort acceptance:
+- Combining `Electronics` + `Under $100` + `Price Low->High` returns correctly filtered and ordered results.
+- Reset clears all filter and sort selections.
+- Search acceptance:
+- Searching `electronics` from any route lands on `/listings` with matching title/description results.
+- Clearing search restores unfiltered results (subject to other active state).
+- Pagination acceptance:
+- Shared pagination works on both `/listings` and `/my-listings`.
+- Page size changes update visible result count and page contents.
+- Navigation between pages works correctly.
+- Applying a new filter resets to page 1.
+- Result count text is accurate for current page and total.
+- URL acceptance:
+- Reloading a results page preserves search/filter/sort/pagination state from URL params.
 
 ## Phase 3 - Bidding and Real-Time Updates
 ### Scope
