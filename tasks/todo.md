@@ -206,36 +206,36 @@ Acceptance Criteria:
 Goal: Deliver explicit-submit navbar search that works in-place on `/listings` and redirects from other routes.
 
 Tasks:
-- [ ] Add centered, always-visible search input to navbar.
-- [ ] Add search trigger behavior for `Enter` and search button click only.
-- [ ] Implement title/description contains matching using simple like/contains query logic.
-- [ ] On `/listings`, apply search as an in-place filter combined with active status/filter/sort state.
-- [ ] From non-`/listings` routes, redirect to `/listings` with search state in URL query params.
-- [ ] Ensure clearing search restores full results set (subject to other active state).
+- [x] Add centered, always-visible search input to navbar.
+- [x] Add search trigger behavior for `Enter` and search button click only.
+- [x] Implement title/description contains matching using simple like/contains query logic.
+- [x] On `/listings`, apply search as an in-place filter combined with active status/filter/sort state.
+- [x] From non-`/listings` routes, redirect to `/listings` with search state in URL query params.
+- [x] Ensure clearing search restores full results set (subject to other active state).
 
 Acceptance Criteria:
-- [ ] Searching `electronics` from any route shows matching listings on `/listings`.
-- [ ] Search only runs on explicit submit (`Enter` or button), not while typing.
-- [ ] Clearing search returns to full browse results.
+- [x] Searching `electronics` from any route shows matching listings on `/listings`.
+- [x] Search only runs on explicit submit (`Enter` or button), not while typing.
+- [x] Clearing search returns to full browse results.
 
 ### Sub-Phase 2D: Pagination
 Goal: Deliver a shared sticky-bottom pagination component reused by `/listings` and `/my-listings`.
 
 Tasks:
-- [ ] Build a reusable offset-based pagination component for current and future pages.
-- [ ] Apply the shared component to `/listings` and `/my-listings`.
-- [ ] Implement layout: result count on left, ShadCN pagination controls in center, page size buttons on right.
-- [ ] Add page size options `6`, `12`, `24`, `48`.
-- [ ] Make pagination sticky to the bottom of the page.
-- [ ] Ensure pagination respects active search, filters, and sort.
-- [ ] Reset to page 1 whenever search/filter/sort criteria change.
-- [ ] Persist page number and page size in URL query params.
+- [x] Build a reusable offset-based pagination component for current and future pages.
+- [x] Apply the shared component to `/listings` and `/my-listings`.
+- [x] Implement layout: result count on left, ShadCN pagination controls in center, page size buttons on right.
+- [x] Add page size options `6`, `12`, `24`, `48`.
+- [x] Make pagination sticky to the bottom of the page.
+- [x] Ensure pagination respects active search, filters, and sort.
+- [x] Reset to page 1 whenever search/filter/sort criteria change.
+- [x] Persist page number and page size in URL query params.
 
 Acceptance Criteria:
-- [ ] Changing page size updates visible results correctly.
-- [ ] Page navigation works on `/listings` and `/my-listings`.
-- [ ] Applying a new filter resets results to page 1.
-- [ ] Result count text (for example `1-5 of 20`) is accurate.
+- [x] Changing page size updates visible results correctly.
+- [x] Page navigation works on `/listings` and `/my-listings`.
+- [x] Applying a new filter resets results to page 1.
+- [x] Result count text (for example `1-5 of 20`) is accurate.
 
 ## Phase 3 - Bidding and Real-Time Updates
 Status: Not Started

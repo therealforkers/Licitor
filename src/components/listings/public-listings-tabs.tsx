@@ -10,6 +10,7 @@ import {
 } from "@/components/listings/filter-dropdown";
 import { EmptyStateCard } from "@/components/shared/empty-state-card";
 import { ListingCard } from "@/components/shared/listing-card";
+import { ListingsPaginationBar } from "@/components/shared/listings-pagination-bar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -19,9 +20,11 @@ import {
   listingConditions,
 } from "@/lib/db/schema";
 import {
+  defaultListingPageSize,
   getListingPriceLabel,
   getListingSortLabel,
   type ListingBrowseState,
+  type ListingPaginationMeta,
   type ListingPriceFilter,
   type ListingSortOption,
   listingPriceFilterOptions,
@@ -35,6 +38,7 @@ import type { ListingSummaryDto } from "@/types/listings";
 type PublicListingsTabsProps = {
   initialState: ListingBrowseState;
   listings: ListingSummaryDto[];
+  pagination: ListingPaginationMeta;
 };
 
 const statusTabLabels = {
@@ -46,6 +50,7 @@ const statusTabLabels = {
 export function PublicListingsTabs({
   initialState,
   listings,
+  pagination,
 }: PublicListingsTabsProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -59,9 +64,20 @@ export function PublicListingsTabs({
     setSelectedStatus(initialState.status);
   }, [initialState.status]);
 
-  const navigateWithParams = (mutator: (params: URLSearchParams) => void) => {
+  const navigateWithParams = (
+    mutator: (params: URLSearchParams) => void,
+    options: {
+      resetPage?: boolean;
+    } = {},
+  ) => {
     const nextSearchParams = new URLSearchParams(searchParams.toString());
     mutator(nextSearchParams);
+    if (options.resetPage) {
+      nextSearchParams.set("page", "1");
+      if (!nextSearchParams.get("pageSize")) {
+        nextSearchParams.set("pageSize", String(defaultListingPageSize));
+      }
+    }
 
     startTransition(() => {
       router.replace(`${pathname}?${nextSearchParams.toString()}`, {
@@ -71,14 +87,17 @@ export function PublicListingsTabs({
   };
 
   const setParam = (key: string, value?: string) => {
-    navigateWithParams((params) => {
-      if (!value) {
-        params.delete(key);
-        return;
-      }
+    navigateWithParams(
+      (params) => {
+        if (!value) {
+          params.delete(key);
+          return;
+        }
 
-      params.set(key, value);
-    });
+        params.set(key, value);
+      },
+      { resetPage: true },
+    );
   };
 
   const handleStatusChange = (status: string) => {
@@ -112,12 +131,15 @@ export function PublicListingsTabs({
   };
 
   const resetFiltersAndSort = () => {
-    navigateWithParams((params) => {
-      params.delete("category");
-      params.delete("condition");
-      params.delete("price");
-      params.delete("sort");
-    });
+    navigateWithParams(
+      (params) => {
+        params.delete("category");
+        params.delete("condition");
+        params.delete("price");
+        params.delete("sort");
+      },
+      { resetPage: true },
+    );
   };
 
   return (
@@ -197,16 +219,20 @@ export function PublicListingsTabs({
           description="Adjust your filters, switch tabs, or check back soon for new inventory."
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {listings.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              href={`/listings/${listing.id}`}
-              listing={listing}
-              priority={index < 3}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {listings.map((listing, index) => (
+              <ListingCard
+                key={listing.id}
+                href={`/listings/${listing.id}`}
+                listing={listing}
+                priority={index < 3}
+              />
+            ))}
+          </div>
+
+          <ListingsPaginationBar pagination={pagination} />
+        </>
       )}
     </Tabs>
   );

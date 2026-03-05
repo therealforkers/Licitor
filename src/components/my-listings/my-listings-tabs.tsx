@@ -5,8 +5,13 @@ import { useEffect, useState, useTransition } from "react";
 
 import { EmptyStateCard } from "@/components/shared/empty-state-card";
 import { ListingCard } from "@/components/shared/listing-card";
+import { ListingsPaginationBar } from "@/components/shared/listings-pagination-bar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ListingStatus } from "@/lib/db/schema";
+import {
+  defaultListingPageSize,
+  type ListingPaginationMeta,
+} from "@/lib/listing-browse";
 import type { ListingSummaryDto } from "@/types/listings";
 
 const tabConfig = [
@@ -22,11 +27,13 @@ const tabConfig = [
 type MyListingsTabsProps = {
   initialStatus?: ListingStatus;
   listings: ListingSummaryDto[];
+  pagination: ListingPaginationMeta;
 };
 
 export function MyListingsTabs({
   initialStatus = "Draft",
   listings,
+  pagination,
 }: MyListingsTabsProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -43,6 +50,10 @@ export function MyListingsTabs({
     const nextStatus = status as ListingStatus;
     const nextSearchParams = new URLSearchParams(searchParams.toString());
     nextSearchParams.set("status", nextStatus);
+    nextSearchParams.set("page", "1");
+    if (!nextSearchParams.get("pageSize")) {
+      nextSearchParams.set("pageSize", String(defaultListingPageSize));
+    }
 
     setSelectedStatus(nextStatus);
     startTransition(() => {
@@ -77,16 +88,20 @@ export function MyListingsTabs({
           description="Listings you create will appear here under their current auction status, so you can separate private drafts from live and completed inventory."
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {listings.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              href={`/listings/${listing.id}`}
-              listing={listing}
-              priority={index < 3}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {listings.map((listing, index) => (
+              <ListingCard
+                key={listing.id}
+                href={`/listings/${listing.id}`}
+                listing={listing}
+                priority={index < 3}
+              />
+            ))}
+          </div>
+
+          <ListingsPaginationBar pagination={pagination} />
+        </>
       )}
     </Tabs>
   );

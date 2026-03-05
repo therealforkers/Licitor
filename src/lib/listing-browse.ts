@@ -47,11 +47,21 @@ export const listingSortOptions = [
 export type ListingBrowseState = {
   category?: ListingCategory;
   condition?: ListingCondition;
+  page: number;
+  pageSize: ListingPageSize;
   price?: ListingPriceFilter;
   q?: string;
   sort?: ListingSortOption;
   status: PublicBrowseStatus;
 };
+
+export const listingPageSizeOptions = [
+  6, 12, 24, 48,
+] as const satisfies ReadonlyArray<number>;
+
+export type ListingPageSize = (typeof listingPageSizeOptions)[number];
+
+export const defaultListingPageSize: ListingPageSize = 12;
 
 const listingCategorySet = new Set<ListingCategory>(listingCategories);
 const listingConditionSet = new Set<ListingCondition>(listingConditions);
@@ -62,6 +72,7 @@ const listingPriceFilterSet = new Set<ListingPriceFilter>(
 const listingSortSet = new Set<ListingSortOption>(
   listingSortOptions.map((option) => option.value),
 );
+const listingPageSizeSet = new Set<ListingPageSize>(listingPageSizeOptions);
 
 const normalizeSearchParam = (value?: string | string[]) => {
   if (Array.isArray(value)) {
@@ -150,6 +161,104 @@ export const parseListingSearchTerm = (value?: string | string[]) => {
   }
 
   return normalized.slice(0, 200);
+};
+
+export const parseListingPage = (value?: string | string[]) => {
+  const normalized = normalizeSearchParam(value);
+
+  if (!normalized) {
+    return 1;
+  }
+
+  const parsedPage = Number.parseInt(normalized, 10);
+
+  if (Number.isNaN(parsedPage) || parsedPage < 1) {
+    return 1;
+  }
+
+  return parsedPage;
+};
+
+export const parseListingPageSize = (value?: string | string[]) => {
+  const normalized = normalizeSearchParam(value);
+
+  if (!normalized) {
+    return defaultListingPageSize;
+  }
+
+  const parsedPageSize = Number.parseInt(normalized, 10);
+
+  if (!listingPageSizeSet.has(parsedPageSize as ListingPageSize)) {
+    return defaultListingPageSize;
+  }
+
+  return parsedPageSize as ListingPageSize;
+};
+
+export type ListingPaginationMeta = {
+  from: number;
+  offset: number;
+  page: number;
+  pageSize: ListingPageSize;
+  to: number;
+  totalCount: number;
+  totalPages: number;
+};
+
+export const buildListingPaginationMeta = (input: {
+  page: number;
+  pageSize: ListingPageSize;
+  totalCount: number;
+}): ListingPaginationMeta => {
+  const totalPages = Math.ceil(input.totalCount / input.pageSize);
+  const safePage =
+    totalPages > 0 ? Math.min(Math.max(input.page, 1), totalPages) : 1;
+  const offset = (safePage - 1) * input.pageSize;
+  const from = input.totalCount > 0 ? offset + 1 : 0;
+  const to =
+    input.totalCount > 0
+      ? Math.min(offset + input.pageSize, input.totalCount)
+      : 0;
+
+  return {
+    from,
+    offset,
+    page: safePage,
+    pageSize: input.pageSize,
+    to,
+    totalCount: input.totalCount,
+    totalPages,
+  };
+};
+
+type SearchParamsLike = {
+  toString(): string;
+};
+
+export const buildListingsSearchHref = (input: {
+  currentSearchParams?: SearchParamsLike;
+  pathname: string;
+  query?: string;
+}) => {
+  const normalizedQuery = parseListingSearchTerm(input.query);
+  const nextSearchParams =
+    input.pathname === "/listings"
+      ? new URLSearchParams(input.currentSearchParams?.toString())
+      : new URLSearchParams();
+
+  if (normalizedQuery) {
+    nextSearchParams.set("q", normalizedQuery);
+  } else {
+    nextSearchParams.delete("q");
+  }
+  nextSearchParams.set("page", "1");
+  if (!nextSearchParams.get("pageSize")) {
+    nextSearchParams.set("pageSize", String(defaultListingPageSize));
+  }
+
+  const nextQueryString = nextSearchParams.toString();
+
+  return nextQueryString ? `/listings?${nextQueryString}` : "/listings";
 };
 
 export const getListingPriceCeilingCents = (

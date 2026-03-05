@@ -1,8 +1,11 @@
 import { PublicListingsTabs } from "@/components/listings/public-listings-tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import {
+  buildListingPaginationMeta,
   parseListingCategoryFilter,
   parseListingConditionFilter,
+  parseListingPage,
+  parseListingPageSize,
   parseListingPriceFilter,
   parseListingSearchTerm,
   parseListingSortOption,
@@ -14,6 +17,8 @@ type ListingsPageProps = {
   searchParams?: Promise<{
     category?: string | string[];
     condition?: string | string[];
+    page?: string | string[];
+    pageSize?: string | string[];
     price?: string | string[];
     q?: string | string[];
     sort?: string | string[];
@@ -28,6 +33,8 @@ export default async function ListingsPage({
   const browseState = {
     category: parseListingCategoryFilter(resolvedSearchParams?.category),
     condition: parseListingConditionFilter(resolvedSearchParams?.condition),
+    page: parseListingPage(resolvedSearchParams?.page),
+    pageSize: parseListingPageSize(resolvedSearchParams?.pageSize),
     price: parseListingPriceFilter(resolvedSearchParams?.price),
     q: parseListingSearchTerm(resolvedSearchParams?.q),
     sort: parseListingSortOption(resolvedSearchParams?.sort),
@@ -35,6 +42,15 @@ export default async function ListingsPage({
   };
 
   const listingRows = await getPublicListings(browseState);
+  const pagination = buildListingPaginationMeta({
+    page: browseState.page,
+    pageSize: browseState.pageSize,
+    totalCount: listingRows.length,
+  });
+  const paginatedListings = listingRows.slice(
+    pagination.offset,
+    pagination.offset + pagination.pageSize,
+  );
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
@@ -44,7 +60,11 @@ export default async function ListingsPage({
         description="Explore the seeded marketplace inventory, from active bidding wars to scheduled launches waiting for their opening bid."
       />
 
-      <PublicListingsTabs initialState={browseState} listings={listingRows} />
+      <PublicListingsTabs
+        initialState={browseState}
+        listings={paginatedListings}
+        pagination={pagination}
+      />
     </section>
   );
 }

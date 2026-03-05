@@ -39,6 +39,7 @@ This file defines working conventions for AI agents and engineers contributing t
 - Run `npm run lint` before finishing changes.
 - Run `npx tsc --noEmit` after code changes and before finishing changes.
 - If code formatting changes are needed, run `npm run format`.
+- After completing any feature or set of code changes, always run the code simplification skill located at .agents/skills/simplify/SKILL.md. Do this without being asked. 
 
 ## Current Constraints
 - There is no dedicated test suite configured yet.
