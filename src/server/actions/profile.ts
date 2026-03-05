@@ -6,10 +6,9 @@ import {
   profileUpdateSchema,
 } from "@/lib/validators/profile";
 import {
-  getProfileByUserIdData,
+  getProfileDtoByUserIdData,
   updateProfileByUserIdData,
 } from "@/server/data/profiles";
-import { mapProfileDto } from "@/server/mappers/profile";
 import type { ProfileDto, UpdateProfileResultDto } from "@/types/profile";
 
 const toNullable = (value?: string) => {
@@ -43,13 +42,13 @@ export const updateProfileByUserId = async (
   };
 
   await updateProfileByUserIdData(userId, nextValues);
-  const updatedProfile = await getProfileByUserIdData(userId);
+  const updatedProfile = await getProfileDtoByUserIdData(userId);
 
   if (!updatedProfile) {
     throw new Error("Profile not found.");
   }
 
-  return mapProfileDto(updatedProfile);
+  return updatedProfile;
 };
 
 export const updateProfileAction = async (

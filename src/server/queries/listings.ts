@@ -13,17 +13,13 @@ import {
   getListingPriceCeilingCents,
 } from "@/lib/listing-browse";
 import {
-  getListingByIdData,
+  getListingDetailsDtoData,
   getListingsBySellerIdCountData,
-  getListingsBySellerIdData,
+  getListingsBySellerIdSummariesData,
+  getPublicListingSummariesData,
   getPublicListingsCountData,
-  getPublicListingsData,
   type PublicListingStatus,
 } from "@/server/data/listings";
-import {
-  mapListingDetailsDto,
-  mapListingSummaryDto,
-} from "@/server/mappers/listings";
 import type { ListingDetailsDto, ListingSummaryDto } from "@/types/listings";
 
 export const getPublicListings = async (
@@ -37,7 +33,7 @@ export const getPublicListings = async (
   } = {},
 ): Promise<ListingSummaryDto[]> => {
   const priceCeilingCents = getListingPriceCeilingCents(options.price);
-  const rows = await getPublicListingsData({
+  return getPublicListingSummariesData({
     category: options.category,
     condition: options.condition,
     priceCeilingCents,
@@ -45,8 +41,6 @@ export const getPublicListings = async (
     sort: options.sort,
     status: options.status,
   });
-
-  return rows.map(mapListingSummaryDto);
 };
 
 export const getPublicListingsPaginated = async (options: {
@@ -72,7 +66,7 @@ export const getPublicListingsPaginated = async (options: {
     pageSize: options.pageSize,
     totalCount,
   });
-  const rows = await getPublicListingsData({
+  const listings = await getPublicListingSummariesData({
     category: options.category,
     condition: options.condition,
     pagination: {
@@ -86,7 +80,7 @@ export const getPublicListingsPaginated = async (options: {
   });
 
   return {
-    listings: rows.map(mapListingSummaryDto),
+    listings,
     pagination,
   };
 };
@@ -95,9 +89,7 @@ export const getListingsBySellerId = async (
   sellerId: string,
   status?: ListingStatus,
 ): Promise<ListingSummaryDto[]> => {
-  const rows = await getListingsBySellerIdData(sellerId, { status });
-
-  return rows.map(mapListingSummaryDto);
+  return getListingsBySellerIdSummariesData(sellerId, { status });
 };
 
 export const getListingsBySellerIdPaginated = async (options: {
@@ -115,7 +107,7 @@ export const getListingsBySellerIdPaginated = async (options: {
     pageSize: options.pageSize,
     totalCount,
   });
-  const rows = await getListingsBySellerIdData(options.sellerId, {
+  const listings = await getListingsBySellerIdSummariesData(options.sellerId, {
     pagination: {
       limit: pagination.pageSize,
       offset: pagination.offset,
@@ -124,7 +116,7 @@ export const getListingsBySellerIdPaginated = async (options: {
   });
 
   return {
-    listings: rows.map(mapListingSummaryDto),
+    listings,
     pagination,
   };
 };
@@ -132,11 +124,5 @@ export const getListingsBySellerIdPaginated = async (options: {
 export const getListingById = async (
   listingId: string,
 ): Promise<ListingDetailsDto | null> => {
-  const row = await getListingByIdData(listingId);
-
-  if (!row) {
-    return null;
-  }
-
-  return mapListingDetailsDto(row);
+  return getListingDetailsDtoData(listingId);
 };

@@ -5,8 +5,17 @@ import type { ListingStatus } from "@/lib/db/schema";
 import { listingImages, listings } from "@/lib/db/schema";
 import type { ListingSortOption } from "@/lib/listing-browse";
 import type { UpdateListingDraftValues } from "@/lib/validators/listings";
+import type {
+  ListingDetailsDto,
+  ListingSummaryDto,
+  OwnedListingForEditDto,
+} from "@/types/listings";
 
 export type PublicListingStatus = Exclude<ListingStatus, "Draft">;
+
+const toIsoDate = (value: Date | null) => {
+  return value ? value.toISOString() : null;
+};
 
 type QueryPagination = {
   limit: number;
@@ -70,20 +79,36 @@ const buildPublicListingsWhereClause = (
   return whereClause;
 };
 
-export const getPublicListingsData = async (
+export const getPublicListingSummariesData = async (
   options: GetPublicListingsDataOptions = {},
-) => {
+): Promise<ListingSummaryDto[]> => {
   const whereClause = buildPublicListingsWhereClause(options);
-
-  return db.query.listings.findMany({
-    where: whereClause,
+  const rows = await db.query.listings.findMany({
+    columns: {
+      id: true,
+      title: true,
+      status: true,
+      bidCount: true,
+      currentBid: true,
+      startAt: true,
+      endAt: true,
+    },
     with: {
       images: {
+        columns: {
+          url: true,
+        },
         where: (images, { eq }) => eq(images.isMain, true),
         orderBy: (images, { desc: orderDesc }) => [orderDesc(images.createdAt)],
+        limit: 1,
       },
-      seller: true,
+      seller: {
+        columns: {
+          name: true,
+        },
+      },
     },
+    where: whereClause,
     limit: options.pagination?.limit,
     offset: options.pagination?.offset,
     orderBy: (listing, { asc, desc }) => {
@@ -110,6 +135,18 @@ export const getPublicListingsData = async (
       }
     },
   });
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    status: row.status,
+    bidCount: row.bidCount,
+    currentBid: row.currentBid,
+    startAt: toIsoDate(row.startAt),
+    endAt: toIsoDate(row.endAt),
+    sellerName: row.seller.name,
+    imageUrl: row.images[0]?.url ?? null,
+  }));
 };
 
 export const getPublicListingsCountData = async (
@@ -139,25 +176,53 @@ const buildSellerListingsWhereClause = (
     ? and(eq(listings.sellerId, sellerId), eq(listings.status, status))
     : eq(listings.sellerId, sellerId);
 
-export const getListingsBySellerIdData = async (
+export const getListingsBySellerIdSummariesData = async (
   sellerId: string,
   options: GetListingsBySellerIdDataOptions = {},
-) => {
+): Promise<ListingSummaryDto[]> => {
   const whereClause = buildSellerListingsWhereClause(sellerId, options.status);
-
-  return db.query.listings.findMany({
-    where: whereClause,
+  const rows = await db.query.listings.findMany({
+    columns: {
+      id: true,
+      title: true,
+      status: true,
+      bidCount: true,
+      currentBid: true,
+      startAt: true,
+      endAt: true,
+    },
     with: {
       images: {
+        columns: {
+          url: true,
+        },
         where: (images, { eq }) => eq(images.isMain, true),
         orderBy: (images, { desc: orderDesc }) => [orderDesc(images.createdAt)],
+        limit: 1,
       },
-      seller: true,
+      seller: {
+        columns: {
+          name: true,
+        },
+      },
     },
+    where: whereClause,
     limit: options.pagination?.limit,
     offset: options.pagination?.offset,
     orderBy: (listing, { desc }) => [desc(listing.createdAt)],
   });
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    status: row.status,
+    bidCount: row.bidCount,
+    currentBid: row.currentBid,
+    startAt: toIsoDate(row.startAt),
+    endAt: toIsoDate(row.endAt),
+    sellerName: row.seller.name,
+    imageUrl: row.images[0]?.url ?? null,
+  }));
 };
 
 export const getListingsBySellerIdCountData = async (
@@ -175,29 +240,115 @@ export const getListingsBySellerIdCountData = async (
   return result?.count ?? 0;
 };
 
-export const getListingByIdData = async (listingId: string) => {
-  return db.query.listings.findFirst({
+export const getListingDetailsDtoData = async (
+  listingId: string,
+): Promise<ListingDetailsDto | null> => {
+  const row = await db.query.listings.findFirst({
+    columns: {
+      id: true,
+      sellerId: true,
+      title: true,
+      description: true,
+      category: true,
+      condition: true,
+      reservePrice: true,
+      startingBid: true,
+      currentBid: true,
+      bidCount: true,
+      startAt: true,
+      endAt: true,
+      status: true,
+      location: true,
+    },
     where: eq(listings.id, listingId),
     with: {
       images: {
+        columns: {
+          id: true,
+          isMain: true,
+          url: true,
+        },
         orderBy: (images, { asc }) => [asc(images.createdAt)],
       },
-      seller: true,
+      seller: {
+        columns: {
+          name: true,
+        },
+      },
     },
   });
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    sellerId: row.sellerId,
+    title: row.title,
+    description: row.description,
+    category: row.category,
+    condition: row.condition,
+    reservePrice: row.reservePrice,
+    startingBid: row.startingBid,
+    currentBid: row.currentBid,
+    bidCount: row.bidCount,
+    startAt: toIsoDate(row.startAt),
+    endAt: toIsoDate(row.endAt),
+    status: row.status,
+    location: row.location,
+    sellerName: row.seller.name,
+    images: row.images.map((image) => ({
+      id: image.id,
+      isMain: image.isMain,
+      url: image.url,
+    })),
+  };
 };
 
-export const getOwnedListingWithImagesData = async (
+export const getOwnedListingForEditDtoData = async (
   listingId: string,
   sellerId: string,
-) => {
-  return db.query.listings.findFirst({
+): Promise<OwnedListingForEditDto | null> => {
+  const row = await db.query.listings.findFirst({
+    columns: {
+      bidCount: true,
+      currentBid: true,
+      endAt: true,
+      startAt: true,
+      status: true,
+    },
     where: (listing, { and, eq }) =>
       and(eq(listing.id, listingId), eq(listing.sellerId, sellerId)),
     with: {
-      images: true,
+      images: {
+        columns: {
+          id: true,
+          publicId: true,
+          isMain: true,
+          url: true,
+        },
+      },
     },
   });
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    bidCount: row.bidCount,
+    currentBid: row.currentBid,
+    endAt: row.endAt,
+    startAt: row.startAt,
+    status: row.status,
+    images: row.images.map((image) => ({
+      id: image.id,
+      publicId: image.publicId,
+      isMain: image.isMain,
+      url: image.url,
+    })),
+  };
 };
 
 export const createDraftListingWithMainImageData = (input: {

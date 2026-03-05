@@ -24,12 +24,11 @@ import {
   createDraftListingWithMainImageData,
   deleteListingBySellerData,
   deleteListingImageData,
-  getOwnedListingWithImagesData,
+  getOwnedListingForEditDtoData,
   setMainListingImageData,
   updateListingDraftData,
   updateListingStatusData,
 } from "@/server/data/listings";
-import { mapOwnedListingForEditDto } from "@/server/mappers/listings";
 import type {
   AddListingImageResultDto,
   CreateDraftListingResultDto,
@@ -94,13 +93,7 @@ export const createDraftListingAction = async (
 };
 
 const getOwnedListing = async (listingId: string, sellerId: string) => {
-  const listing = await getOwnedListingWithImagesData(listingId, sellerId);
-
-  if (!listing) {
-    return null;
-  }
-
-  return mapOwnedListingForEditDto(listing);
+  return getOwnedListingForEditDtoData(listingId, sellerId);
 };
 
 const assertListingCanBeEdited = (listing: OwnedListingForEditDto) => {
